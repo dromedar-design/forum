@@ -1,0 +1,41 @@
+{
+  "name": "@keystonejs/example-projects-starter",
+  "description": "An example KeystoneJS project with a User list and Authentication.",
+  "private": true,
+  "version": "5.0.1",
+  "author": "The KeystoneJS Development Team",
+  "repository": "https://github.com/keystonejs/keystone.git",
+  "homepage": "https://github.com/keystonejs/keystone",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.4.0"
+  },
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development DISABLE_LOGGING=true keystone dev",
+    "build": "cross-env NODE_ENV=production keystone build",
+    "start": "cross-env NODE_ENV=production keystone start"
+  },
+  "dependencies": {
+    "@fullhuman/postcss-purgecss": "^2.0.6",
+    "@keystonejs/adapter-mongoose": "^5.2.0",
+    "@keystonejs/app-admin-ui": "^5.8.0",
+    "@keystonejs/app-graphql": "^5.1.0",
+    "@keystonejs/app-next": "^5.1.0",
+    "@keystonejs/auth-password": "^5.1.0",
+    "@keystonejs/fields": "^6.3.0",
+    "@keystonejs/fields-markdown": "^5.1.0",
+    "@keystonejs/keystone": "^5.5.0",
+    "autoprefixer": "^9.7.4",
+    "cross-env": "^5.2.0",
+    "framer-motion": "^1.8.4",
+    "graphql": "^14.6.0",
+    "graphql-request": "^1.8.2",
+    "next": "^9.2.2",
+    "postcss-import": "^12.0.1",
+    "postcss-nested": "^4.2.1",
+    "react-markdown": "^4.3.1",
+    "react-textarea-autosize": "^7.1.2",
+    "swr": "^0.1.18",
+    "tailwindcss": "^1.2.0"
+  }
+}
