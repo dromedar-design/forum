@@ -1,21 +1,28 @@
 import Router from 'next/router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import useAuth from '../utils/useAuth'
 
 const Login = () => {
-  const { login } = useAuth()
+  const { login, isAuthenticated } = useAuth()
   const [data, setData] = useState({
     email: '',
     password: '',
   })
 
-  return (
+  useEffect(() => {
+    if (isAuthenticated) {
+      Router.push('/')
+    }
+  }, [isAuthenticated])
+
+  return isAuthenticated ? (
+    'Loading... '
+  ) : (
     <div>
       <form
         onSubmit={async event => {
           event.preventDefault()
-          await login(data)
-          Router.push('/')
+          login(data)
         }}
       >
         <input
@@ -34,20 +41,6 @@ const Login = () => {
       </form>
     </div>
   )
-}
-
-Login.getInitialProps = async ({ req, res }) => {
-  if (typeof window !== 'undefined') {
-    return {}
-  }
-
-  // don't show login page for logged in users
-  if (req.user) {
-    res.redirect('/')
-    res.end()
-  }
-
-  return {}
 }
 
 export default Login

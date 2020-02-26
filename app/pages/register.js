@@ -1,28 +1,29 @@
-import { useState } from 'react'
-
-// const CREATE_USER = gql`
-//   mutation createUser($email: String!, $name: String!, $password: String!) {
-//     createUser(data: { email: $email, name: $name, password: $password }) {
-//       id
-//       name
-//     }
-//   }
-// `
+import Router from 'next/router'
+import { useEffect, useState } from 'react'
+import useAuth from '../utils/useAuth'
 
 const Register = () => {
+  const { register, isAuthenticated } = useAuth()
   const [data, setData] = useState({
     email: '',
     name: '',
     password: '',
   })
 
-  return (
+  useEffect(() => {
+    if (isAuthenticated) {
+      Router.push('/')
+    }
+  }, [isAuthenticated])
+
+  return isAuthenticated ? (
+    'Loading...'
+  ) : (
     <div>
       <form
         onSubmit={event => {
           event.preventDefault()
-
-          createUser({ variables: data })
+          register(data)
         }}
       >
         <input
@@ -47,19 +48,6 @@ const Register = () => {
       </form>
     </div>
   )
-}
-
-Register.getInitialProps = async ({ req, res }) => {
-  if (typeof window !== 'undefined') return {}
-
-  // don't show register page for logged in users
-  if (req.user) {
-    res.redirect('/')
-    res.end()
-    return {}
-  }
-
-  return {}
 }
 
 export default Register

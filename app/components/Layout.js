@@ -1,9 +1,9 @@
 import Header from './Header'
 
-const Layout = ({ user, children }) => {
+const Layout = ({ children }) => {
   return (
     <div className="wrapper">
-      <Header user={user} />
+      <Header />
       <main>{children}</main>
     </div>
   )

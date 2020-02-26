@@ -19,8 +19,6 @@ const NO_PARENT = `
 `
 
 export default async (req, res) => {
-  console.log(req.user, req.body.text)
-
   const QUERY = req.body.parent ? WITH_PARENT : NO_PARENT
   let data
 

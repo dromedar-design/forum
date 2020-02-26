@@ -12,7 +12,7 @@ const Input = ({ query, parent }) => {
   const inputEl = useRef(null)
 
   useSWR(
-    () => (!isReady ? null : ['/api/comment', text]),
+    () => (!isReady ? null : ['/api/comment/post', text]),
     (url, text) =>
       fetch(url, {
         method: 'POST',
@@ -70,10 +70,10 @@ const Input = ({ query, parent }) => {
                 placeholder="Type here..."
                 minRows={5}
                 onHeightChange={() => {
-                  if (!inputEl.current) return
-
                   setHeight(250)
+
                   setTimeout(() => {
+                    if (!inputEl.current) return
                     setHeight(inputEl.current.offsetHeight)
                   }, 1)
                 }}

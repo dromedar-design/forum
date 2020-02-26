@@ -1,16 +1,16 @@
 import { request } from 'graphql-request'
 
 const QUERY = `
-    query {
-        allComments {
-            id
-            text
-            commentCount
-            user {
-                name
-            }
-        }
+  query {
+    allComments(where: { parent_is_null: true }) {
+      id
+      text
+      commentCount
+      user {
+        name
+      }
     }
+  }
 `
 
 export default async (req, res) => {

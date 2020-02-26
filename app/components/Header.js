@@ -1,7 +1,9 @@
 import Link from 'next/link'
+import Router from 'next/router'
+import useAuth from '../utils/useAuth'
 
-const Header = ({ user }) => {
-  console.log(user)
+const Header = () => {
+  const { isAuthenticated, user, logout } = useAuth()
 
   return (
     <header>
@@ -13,17 +15,31 @@ const Header = ({ user }) => {
       </Link>
 
       <nav>
-        {!user && (
-          <Link href="/login">
-            <a>Login</a>
-          </Link>
+        {!isAuthenticated && (
+          <>
+            <Link href="/login">
+              <a>Login</a>
+            </Link>
+            <Link href="/register">
+              <a>Register</a>
+            </Link>
+          </>
         )}
-        {!user && (
-          <Link href="/register">
-            <a>Register</a>
-          </Link>
+
+        {isAuthenticated && (
+          <>
+            <button
+              onClick={async () => {
+                await logout()
+                Router.push('/')
+              }}
+            >
+              Logout
+            </button>
+            {user.name}
+            {user.email}
+          </>
         )}
-        {user && <button onClick={() => logout()}>Logout</button>}
       </nav>
     </header>
   )

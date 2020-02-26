@@ -1,26 +1,26 @@
 import { request } from 'graphql-request'
 
 const QUERY = `
-    query getComments ($id: ID!) {
-        Comment(where: { id: $id }) {
-            id
-            text
-            user {
-                name
-            }
-            parent {
-                id
-            }
-        }
-        allComments(where: { parent: { id: $id } }) {
-            id
-            text
-            commentCount
-            user {
-                name
-            }
-        }
-    }  
+  query getComments ($id: ID!) {
+    Comment(where: { id: $id }) {
+      id
+      text
+      user {
+        name
+      }
+      parent {
+        id
+      }
+    }
+    allComments(where: { parent: { id: $id } }) {
+      id
+      text
+      commentCount
+      user {
+        name
+      }
+    }
+  }  
 `
 
 export default async (req, res) => {

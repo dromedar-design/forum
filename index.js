@@ -65,7 +65,6 @@ keystone.createList('User', {
       type: Checkbox,
       defaultValue: false,
       access: {
-        read: access.userIsAdmin,
         update: access.userIsAdmin,
       },
     },

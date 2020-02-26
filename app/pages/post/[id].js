@@ -4,7 +4,7 @@ import Input from '../../components/Input'
 import List from '../../components/List'
 import { fetcher } from '../_app'
 
-const QUERY = '/get-comments/'
+const QUERY = '/comment/get/'
 
 const Post = ({ data }) => {
   return (

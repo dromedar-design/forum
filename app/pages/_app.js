@@ -7,11 +7,11 @@ import { AuthProvider } from '../utils/useAuth'
 export const fetcher = url =>
   fetch(`http://localhost:3000/api${url}`).then(res => res.json())
 
-const MyApp = ({ Component, pageProps }) => {
+const MyApp = ({ Component, pageProps, user }) => {
   return (
     <SWRConfig value={{ fetcher }}>
-      <AuthProvider>
-        <Layout user={pageProps.user}>
+      <AuthProvider initialUser={user}>
+        <Layout>
           <Component {...pageProps} />
         </Layout>
       </AuthProvider>
@@ -24,10 +24,8 @@ MyApp.getInitialProps = async appContext => {
 
   if (appContext.ctx.req && appContext.ctx.req.user) {
     return {
-      pageProps: {
-        ...pageProps,
-        user: appContext.ctx.req.user,
-      },
+      pageProps,
+      user: appContext.ctx.req.user,
     }
   }
 
