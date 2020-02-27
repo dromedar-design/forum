@@ -17,12 +17,14 @@ const Input = ({ query, parent, setParent, defaultParentId }) => {
 
   return (
     <div className="fixed bottom-0 left-0 w-full">
+      <div className="fixed inset-0 bg-black opacity-25 pointer-events-none"></div>
       <motion.div
-        className="p-4 rounded-t-lg bg-white shadow-input mx-auto w-input max-w-input flex flex-col"
+        className="relative p-4 rounded-t-lg bg-white shadow-input mx-auto w-input max-w-input flex flex-col z-10"
         style={{ minHeight: height }}
         ref={inputEl}
         initial={{ y: height }}
         animate={{ y: height - 50 }}
+        transition={{ damping: 30 }}
         drag="y"
         dragElastic={0.1}
         dragConstraints={{

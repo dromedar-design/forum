@@ -12,10 +12,12 @@ const QUERY = `
         id
       }
     }
-    allComments(where: { parent: { id: $id } }) {
+    allComments(where: { parent: { id: $id } }, orderBy: "position_DESC") {
       id
       text
       commentCount
+      likeCount
+      position
       user {
         name
       }
@@ -31,13 +33,13 @@ export default async (req, res) => {
       id: req.query.id,
     })
   } catch (e) {
-    res.status(500).json({
+    return res.status(500).json({
       message: e.message,
     })
   }
 
   res.status(200).json({
     current: data.Comment,
-    items: data.allComments.sort((a, b) => b.commentCount - a.commentCount),
+    items: data.allComments,
   })
 }

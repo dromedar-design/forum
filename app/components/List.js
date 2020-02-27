@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
-import useSWR from 'swr'
+import useSWR, { trigger } from 'swr'
+import { fetcher } from '../pages/_app'
 
 const List = ({ initialData, query, setParent }) => {
   const { data } = useSWR(query, { initialData })
@@ -21,8 +22,31 @@ const List = ({ initialData, query, setParent }) => {
             <Link href="/post/[id]" as={`/post/${comment.id}`}>
               <a style={{ marginRight: 10 }}>Link</a>
             </Link>
-            <button onClick={() => setParent(comment)}>Válasz</button>[
-            {comment.commentCount}]
+            <button onClick={() => setParent(comment)}>Válasz</button>
+            <span>[{comment.commentCount}]</span>
+            <button
+              onClick={() => {
+                fetcher('/comment/delete', {
+                  id: comment.id,
+                }).then(() => {
+                  trigger(query)
+                })
+              }}
+            >
+              DEL
+            </button>
+            <button
+              onClick={() => {
+                fetcher('/like/post', {
+                  comment: comment.id,
+                  value: 'UP',
+                }).then(() => {
+                  trigger(query)
+                })
+              }}
+            >
+              LIKE
+            </button>
           </li>
         )
       })}

@@ -19,6 +19,12 @@ const NO_PARENT = `
 `
 
 export default async (req, res) => {
+  if (!req.user) {
+    return res.status(500).json({
+      message: 'No user',
+    })
+  }
+
   const QUERY = req.body.parent ? WITH_PARENT : NO_PARENT
   let data
 
@@ -28,13 +34,11 @@ export default async (req, res) => {
       user: req.user.id,
       parent: req.body.parent,
     })
-  } catch (err) {
-    res.statusCode = 500
-    res.end(err.message)
-    return
+  } catch (e) {
+    return res.status(500).json({
+      message: e.message,
+    })
   }
 
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(data))
+  res.status(200).json(data)
 }
