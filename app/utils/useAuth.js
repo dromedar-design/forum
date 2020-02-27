@@ -130,10 +130,7 @@ export default () => {
     let data
 
     try {
-      data = await request(ENDPOINT, QUERY, {
-        fetchPolicy: 'no-cache',
-        ...variables,
-      })
+      data = await request(ENDPOINT, QUERY, variables)
     } catch (e) {
       dispatch({
         type: 'ERROR',

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import Input from '../../components/Input'
 import List from '../../components/List'
@@ -7,13 +8,21 @@ import { fetcher } from '../_app'
 const QUERY = '/comment/get/'
 
 const Post = ({ data }) => {
+  const [parent, setParent] = useState(null)
+
   return (
     <div>
-      <Input parent={data.current.id} query={QUERY + data.current.id} />
+      <Input
+        query={QUERY + data.current.id}
+        defaultParentId={data.current.id}
+        parent={parent}
+        setParent={setParent}
+      />
 
       <div style={{ marginTop: 20 }}>
         <Link
-          href={data.current.parent ? `/post/${data.current.parent.id}` : '/'}
+          href={data.current.parent ? `/post/[id]` : '/'}
+          as={data.current.parent ? `/post/${data.current.parent.id}` : '/'}
         >
           <a>Back</a>
         </Link>
@@ -25,7 +34,11 @@ const Post = ({ data }) => {
           {data.current.user && <small>by {data.current.user.name}</small>}
         </div>
 
-        <List initialData={data} query={QUERY + data.current.id} />
+        <List
+          initialData={data}
+          query={QUERY + data.current.id}
+          setParent={setParent}
+        />
       </div>
     </div>
   )

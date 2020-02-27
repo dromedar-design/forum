@@ -2,7 +2,7 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import useSWR from 'swr'
 
-const List = ({ initialData, query }) => {
+const List = ({ initialData, query, setParent }) => {
   const { data } = useSWR(query, { initialData })
 
   return !data ? (
@@ -18,10 +18,11 @@ const List = ({ initialData, query }) => {
             {comment.user && (
               <small style={{ marginRight: 10 }}>by {comment.user.name}</small>
             )}
-            <Link href={`/post/${comment.id}`}>
+            <Link href="/post/[id]" as={`/post/${comment.id}`}>
               <a style={{ marginRight: 10 }}>Link</a>
             </Link>
-            [{comment.commentCount}]
+            <button onClick={() => setParent(comment)}>Válasz</button>[
+            {comment.commentCount}]
           </li>
         )
       })}

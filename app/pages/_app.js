@@ -1,11 +1,18 @@
+import fetch from 'isomorphic-unfetch'
 import App from 'next/app'
 import { SWRConfig } from 'swr'
 import Layout from '../components/Layout'
 import '../css/tailwind.css'
 import { AuthProvider } from '../utils/useAuth'
 
-export const fetcher = url =>
-  fetch(`http://localhost:3000/api${url}`).then(res => res.json())
+export const fetcher = (url, variables = null) =>
+  fetch(`http://localhost:3000/api${url}`, {
+    method: variables ? 'POST' : 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: variables ? JSON.stringify(variables) : null,
+  }).then(res => res.json())
 
 const MyApp = ({ Component, pageProps, user }) => {
   return (

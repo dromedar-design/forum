@@ -2,33 +2,18 @@ import { motion } from 'framer-motion'
 import { useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import TextareaAutosize from 'react-textarea-autosize'
-import useSWR, { trigger } from 'swr'
+import { trigger } from 'swr'
+import { fetcher } from '../pages/_app'
+import useAuth from '../utils/useAuth'
 
-const Input = ({ query, parent }) => {
+const Input = ({ query, parent, setParent, defaultParentId }) => {
   const [text, setText] = useState('')
-  const [isReady, setIsReady] = useState(false)
   const [showMarkdown, setShowMarkdown] = useState(false)
   const [height, setHeight] = useState(250)
   const inputEl = useRef(null)
+  const { isAuthenticated } = useAuth()
 
-  useSWR(
-    () => (!isReady ? null : ['/api/comment/post', text]),
-    (url, text) =>
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text, parent }),
-      }),
-    {
-      onSuccess: () => {
-        setIsReady(false)
-        setText('')
-        trigger(query)
-      },
-    }
-  )
+  if (!isAuthenticated) return null
 
   return (
     <div className="fixed bottom-0 left-0 w-full">
@@ -36,10 +21,10 @@ const Input = ({ query, parent }) => {
         className="p-4 rounded-t-lg bg-white shadow-input mx-auto w-input max-w-input flex flex-col"
         style={{ minHeight: height }}
         ref={inputEl}
-        initial={{ y: height - 50 }}
-        // animate={{ y: height - 50 }}
+        initial={{ y: height }}
+        animate={{ y: height - 50 }}
         drag="y"
-        dragElastic={0.2}
+        dragElastic={0.1}
         dragConstraints={{
           top: 0,
           bottom: height - 50,
@@ -49,14 +34,37 @@ const Input = ({ query, parent }) => {
           <hr className="w-40 mx-auto bg-gray-400 h-2 rounded-full opacity-50" />
         </div>
 
-        <h2 className="mx-2 mt-1 sm:mt-0">Write your comment</h2>
+        <h2 className="mx-2 mt-1 sm:mt-0">
+          <span>Write your comment</span>
+          {parent && (
+            <span>
+              <span style={{ marginLeft: 20 }}>
+                Válasz erre: {parent.text} - {parent.user.name}
+              </span>
+              <button
+                onClick={() => setParent(null)}
+                style={{ marginLeft: 20 }}
+              >
+                X Ne válaszoljon
+              </button>
+            </span>
+          )}
+        </h2>
 
         <form
           className="flex-1 flex flex-col mt-2"
           onSubmit={event => {
             event.preventDefault()
             if (!text) return
-            setIsReady(true)
+
+            fetcher('/comment/post', {
+              text,
+              parent: parent ? parent.id : defaultParentId,
+            }).then(() => {
+              setText('')
+              trigger(query)
+              setParent(null)
+            })
           }}
         >
           <div className="flex-1 border-t-2 border-gray-200">
