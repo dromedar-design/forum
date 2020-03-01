@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import Input from '../../components/Input'
-import List from '../../components/List'
-import { fetcher } from '../_app'
+import Input from '../../../components/Input'
+import List from '../../../components/List'
+import { fetcher } from '../../_app'
 
 const QUERY = '/comment/get/'
 
@@ -21,8 +21,8 @@ const Post = ({ data }) => {
 
       <div style={{ marginTop: 20 }}>
         <Link
-          href={data.current.parent ? `/post/[id]` : '/'}
-          as={data.current.parent ? `/post/${data.current.parent.id}` : '/'}
+          href={data.current.parent ? `/p/[id]` : '/'}
+          as={data.current.parent ? `/p/${data.current.parent.id}` : '/'}
         >
           <a>Back</a>
         </Link>

@@ -3,13 +3,13 @@ import ReactMarkdown from 'react-markdown'
 import useSWR, { trigger } from 'swr'
 import { fetcher } from '../pages/_app'
 
-const List = ({ initialData, query, setParent }) => {
+const List = ({ initialData, query, setParent, ...props }) => {
   const { data } = useSWR(query, { initialData })
 
   return !data ? (
     <p>Loading ...</p>
   ) : (
-    <ul>
+    <ul {...props}>
       {data.items.map(comment => {
         return (
           <li key={comment.id}>
@@ -19,7 +19,7 @@ const List = ({ initialData, query, setParent }) => {
             {comment.user && (
               <small style={{ marginRight: 10 }}>by {comment.user.name}</small>
             )}
-            <Link href="/post/[id]" as={`/post/${comment.id}`}>
+            <Link href="/p/[id]" as={`/p/${comment.id}`}>
               <a style={{ marginRight: 10 }}>Link</a>
             </Link>
             <button onClick={() => setParent(comment)}>Válasz</button>
