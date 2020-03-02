@@ -1,54 +1,39 @@
 import Link from 'next/link'
-import { useState } from 'react'
-import ReactMarkdown from 'react-markdown'
-import Input from '../../../components/Input'
-import List from '../../../components/List'
-import { get } from '../../../utils/useData'
+import { useEffect } from 'react'
+import Body from '../../../components/Body'
+import useData, { get } from '../../../utils/useData'
 
 const QUERY = '/comment/get/'
 
-const Post = ({ data }) => {
-  const [parent, setParent] = useState(null)
+const Post = ({ left, right }) => {
+  const { setRight, setLeft, rightData: data } = useData()
+
+  useEffect(() => {
+    setRight(right)
+    setLeft(left)
+  }, [left, right])
 
   return (
     <div>
-      <Input
-        query={QUERY + data.current.id}
-        defaultParentId={data.current.id}
-        parent={parent}
-        setParent={setParent}
-      />
-
-      <div style={{ marginTop: 20 }}>
+      {data && data.current && (
         <Link
           href={data.current.parent ? `/p/[id]` : '/'}
           as={data.current.parent ? `/p/${data.current.parent.id}` : '/'}
         >
           <a>Back</a>
         </Link>
+      )}
 
-        <div key={data.current.id}>
-          <span style={{ marginRight: 10 }}>
-            <ReactMarkdown source={data.current.text} />
-          </span>
-          {data.current.user && <small>by {data.current.user.name}</small>}
-        </div>
-
-        <List
-          initialData={data}
-          query={QUERY + data.current.id}
-          setParent={setParent}
-        />
-      </div>
+      <Body />
     </div>
   )
 }
 
 Post.getInitialProps = async ctx => {
-  const data = await get(QUERY + ctx.query.id)
+  const right = await get(QUERY + ctx.query.id)
 
-  if (!data.current) {
-    ctx.res
+  if (!right.current) {
+    return ctx.res
       .status(404)
       .json({
         message: 'Can not be found a model with id: ' + ctx.query.id,
@@ -56,7 +41,22 @@ Post.getInitialProps = async ctx => {
       .end()
   }
 
-  return { data }
+  const leftQuery = right.current.parent
+    ? QUERY + right.current.parent.id
+    : '/comment/get'
+
+  const left = await get(leftQuery)
+
+  return {
+    left: {
+      query: leftQuery,
+      initial: left,
+    },
+    right: {
+      query: QUERY + ctx.query.id,
+      initial: right,
+    },
+  }
 }
 
 export default Post

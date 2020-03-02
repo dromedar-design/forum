@@ -5,13 +5,13 @@ import TextareaAutosize from 'react-textarea-autosize'
 import useAuth from '../utils/useAuth'
 import useData from '../utils/useData'
 
-const Input = ({ parent, setParent, defaultParentId }) => {
+const Input = () => {
   const [text, setText] = useState('')
   const [showMarkdown, setShowMarkdown] = useState(false)
   const [height, setHeight] = useState(250)
   const inputEl = useRef(null)
   const { isAuthenticated } = useAuth()
-  const { post } = useData()
+  const { post, selected, setSelected, rightData } = useData()
 
   if (!isAuthenticated) return null
 
@@ -38,13 +38,13 @@ const Input = ({ parent, setParent, defaultParentId }) => {
 
         <h2 className="mx-2 mt-1 sm:mt-0">
           <span>Write your comment</span>
-          {parent && (
+          {selected && (
             <span>
               <span style={{ marginLeft: 20 }}>
-                Válasz erre: {parent.text} - {parent.user.name}
+                Válasz erre: {selected.text} - {selected.user.name}
               </span>
               <button
-                onClick={() => setParent(null)}
+                onClick={() => setSelected(null)}
                 style={{ marginLeft: 20 }}
               >
                 X Ne válaszoljon
@@ -61,10 +61,10 @@ const Input = ({ parent, setParent, defaultParentId }) => {
 
             post('/comment/post', {
               text,
-              parent: parent ? parent.id : defaultParentId,
+              parent: selected ? selected.id : rightData.current.id,
             }).then(() => {
               setText('')
-              setParent(null)
+              setSelected(null)
             })
           }}
         >

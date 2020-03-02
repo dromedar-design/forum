@@ -9,7 +9,7 @@ const MyApp = ({ Component, pageProps, user }) => {
   return (
     <SWRConfig value={{ fetcher: get }}>
       <AuthProvider initialUser={user}>
-        <DataProvider left={pageProps.left}>
+        <DataProvider left={pageProps.left} right={pageProps.right}>
           <Layout>
             <Component {...pageProps} />
           </Layout>
