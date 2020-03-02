@@ -1,4 +1,4 @@
-import { fetcher } from '../../../_app'
+import { get } from '../../../../utils/useData'
 
 const QUERY = '/comment/get/'
 
@@ -7,7 +7,7 @@ const Post = ({ data }) => {
 }
 
 Post.getInitialProps = async ctx => {
-  const data = await fetcher(QUERY + ctx.query.id)
+  const data = await get(QUERY + ctx.query.id)
 
   if (!data.current) {
     ctx.res

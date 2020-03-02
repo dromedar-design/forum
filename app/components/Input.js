@@ -2,16 +2,16 @@ import { motion } from 'framer-motion'
 import { useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import TextareaAutosize from 'react-textarea-autosize'
-import { trigger } from 'swr'
-import { fetcher } from '../pages/_app'
 import useAuth from '../utils/useAuth'
+import useData from '../utils/useData'
 
-const Input = ({ query, parent, setParent, defaultParentId }) => {
+const Input = ({ parent, setParent, defaultParentId }) => {
   const [text, setText] = useState('')
   const [showMarkdown, setShowMarkdown] = useState(false)
   const [height, setHeight] = useState(250)
   const inputEl = useRef(null)
   const { isAuthenticated } = useAuth()
+  const { post } = useData()
 
   if (!isAuthenticated) return null
 
@@ -59,12 +59,11 @@ const Input = ({ query, parent, setParent, defaultParentId }) => {
             event.preventDefault()
             if (!text) return
 
-            fetcher('/comment/post', {
+            post('/comment/post', {
               text,
               parent: parent ? parent.id : defaultParentId,
             }).then(() => {
               setText('')
-              trigger(query)
               setParent(null)
             })
           }}

@@ -1,25 +1,30 @@
 import { useState } from 'react'
 import Input from '../components/Input'
 import List from '../components/List'
-import { fetcher } from './_app'
+import { get } from '../utils/useData'
 
 const QUERY = '/comment/get'
 
-const Home = ({ data }) => {
+const Home = () => {
   const [parent, setParent] = useState(null)
 
   return (
     <div>
-      <Input query={QUERY} parent={parent} setParent={setParent} />
-      <List initialData={data} query={QUERY} setParent={setParent} />
+      <Input parent={parent} setParent={setParent} />
+      <List setParent={setParent} />
     </div>
   )
 }
 
 Home.getInitialProps = async ctx => {
-  const data = await fetcher(QUERY)
+  const data = await get(QUERY)
 
-  return { data }
+  return {
+    left: {
+      query: QUERY,
+      initial: data,
+    },
+  }
 }
 
 export default Home

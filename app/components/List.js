@@ -1,10 +1,9 @@
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
-import useSWR, { trigger } from 'swr'
-import { fetcher } from '../pages/_app'
+import useData from '../utils/useData'
 
-const List = ({ initialData, query, setParent, ...props }) => {
-  const { data } = useSWR(query, { initialData })
+const List = ({ query, initialData, setParent, ...props }) => {
+  const { post, leftData: data } = useData()
 
   return !data ? (
     <p>Loading ...</p>
@@ -26,10 +25,8 @@ const List = ({ initialData, query, setParent, ...props }) => {
             <span>[{comment.commentCount}]</span>
             <button
               onClick={() => {
-                fetcher('/comment/delete', {
+                post('/comment/delete', {
                   id: comment.id,
-                }).then(() => {
-                  trigger(query)
                 })
               }}
             >
@@ -37,11 +34,9 @@ const List = ({ initialData, query, setParent, ...props }) => {
             </button>
             <button
               onClick={() => {
-                fetcher('/like/post', {
+                post('/like/post', {
                   comment: comment.id,
                   value: 'UP',
-                }).then(() => {
-                  trigger(query)
                 })
               }}
             >
