@@ -2,7 +2,7 @@ import fetch from 'isomorphic-unfetch'
 import React, { useContext, useReducer } from 'react'
 import useSWR, { trigger } from 'swr'
 
-const BASEURL = 'http://localhost:3000/api'
+const BASEURL = process.env.BASEURL + '/api'
 
 const Context = React.createContext({})
 

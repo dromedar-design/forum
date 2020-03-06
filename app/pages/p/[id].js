@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { useEffect } from 'react'
-import Body from '../../../components/Body'
-import useData, { get } from '../../../utils/useData'
+import Body from '../../components/Body'
+import useData, { get } from '../../utils/useData'
 
 const QUERY = '/comment/get/'
 
@@ -40,6 +40,8 @@ Post.getInitialProps = async ctx => {
       })
       .end()
   }
+
+  console.log('right', right)
 
   const leftQuery = right.current.parent
     ? QUERY + right.current.parent.id

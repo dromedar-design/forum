@@ -1,9 +1,12 @@
+import cookie from 'cookie'
 import App from 'next/app'
 import { SWRConfig } from 'swr'
 import Layout from '../components/Layout'
 import '../css/tailwind.css'
+import { FAUNA_SECRET_COOKIE } from '../utils/fauna-auth'
 import { AuthProvider } from '../utils/useAuth'
 import { DataProvider, get } from '../utils/useData'
+import { getUser } from './api/user'
 
 const MyApp = ({ Component, pageProps, user }) => {
   return (
@@ -22,10 +25,24 @@ const MyApp = ({ Component, pageProps, user }) => {
 MyApp.getInitialProps = async appContext => {
   const { pageProps } = await App.getInitialProps(appContext)
 
-  if (appContext.ctx.req && appContext.ctx.req.user) {
+  if (typeof window === 'undefined') {
+    const { req, res } = appContext.ctx
+    const cookies = cookie.parse(req.headers.cookie ?? '')
+    const faunaSecret = cookies[FAUNA_SECRET_COOKIE]
+
+    if (!faunaSecret) {
+      return { pageProps }
+    }
+
+    const user = await getUser(faunaSecret)
+
+    if (!user) {
+      return { pageProps }
+    }
+
     return {
       pageProps,
-      user: appContext.ctx.req.user,
+      user,
     }
   }
 

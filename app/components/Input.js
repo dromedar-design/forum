@@ -61,7 +61,11 @@ const Input = () => {
 
             post('/comment/post', {
               text,
-              parent: selected ? selected.id : rightData.current.id,
+              parent: selected
+                ? selected.id
+                : rightData.current
+                ? rightData.current.id
+                : null,
             }).then(() => {
               setText('')
               setSelected(null)

@@ -6,7 +6,7 @@ const List = ({ side, ...props }) => {
   const { post, getSide, rightData, setSelected } = useData()
   const data = getSide(side)
 
-  return !data ? (
+  return !data || !data.items ? (
     <p>Loading ...</p>
   ) : (
     <ul {...props}>
@@ -28,17 +28,15 @@ const List = ({ side, ...props }) => {
             {comment.user && (
               <small style={{ marginRight: 10 }}>by {comment.user.name}</small>
             )}
-            {comment.commentCount > 0 && (
-              <Link href="/p/[id]" as={`/p/${comment.id}`}>
-                <a style={{ marginRight: 10 }}>Link</a>
-              </Link>
-            )}
+            <Link href="/p/[id]" as={`/p/${comment.id}`}>
+              <a style={{ marginRight: 10 }}>Link</a>
+            </Link>
             <button onClick={() => setSelected(comment)}>Válasz</button>
             <span>[{comment.commentCount}]</span>
             <button
               onClick={() => {
                 post('/comment/delete', {
-                  id: comment.id,
+                  ref: comment.id,
                 })
               }}
             >

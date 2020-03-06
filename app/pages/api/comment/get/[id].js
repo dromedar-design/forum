@@ -1,45 +1,50 @@
-import { request } from 'graphql-request'
-
-const QUERY = `
-  query getComments ($id: ID!) {
-    Comment(where: { id: $id }) {
-      id
-      text
-      user {
-        name
-      }
-      parent {
-        id
-      }
-    }
-    allComments(where: { parent: { id: $id } }, orderBy: "position_DESC") {
-      id
-      text
-      commentCount
-      likeCount
-      position
-      user {
-        name
-      }
-    }
-  }  
-`
+import { query as q } from 'faunadb'
+import { serverClient } from '../../../../utils/fauna-auth'
 
 export default async (req, res) => {
-  let data
+  const ref = q.Ref(q.Collection('posts'), req.query.id)
 
   try {
-    data = await request('http://localhost:3000/admin/api', QUERY, {
-      id: req.query.id,
+    const response = await serverClient.query({
+      current: {
+        id: q.Select(['id'], ref),
+        item: q.Get(ref),
+      },
+      items: q.Map(
+        // iterate each item in result
+        q.Paginate(
+          // make paginatable
+          q.Match(
+            // query index
+            q.Index('posts_by_parent'), // specify source
+            req.query.id
+          )
+        ),
+        ref => {
+          return {
+            id: q.Select(['id'], ref),
+            item: q.Get(ref),
+          }
+        }
+      ),
+    })
+
+    res.status(200).json({
+      current: {
+        id: response.current.id,
+        ...response.current.item.data,
+      },
+      items: response.items.data.map(({ id, item }) => ({
+        id,
+        ...item.data,
+      })),
     })
   } catch (e) {
-    return res.status(500).json({
+    console.log(e)
+
+    res.status(e.requestResult.statusCode || 400).json({
+      error: e.name,
       message: e.message,
     })
   }
-
-  res.status(200).json({
-    current: data.Comment,
-    items: data.allComments,
-  })
 }

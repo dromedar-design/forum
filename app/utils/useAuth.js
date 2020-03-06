@@ -1,50 +1,5 @@
-import { request } from 'graphql-request'
 import React, { useContext, useEffect, useReducer } from 'react'
-
-const ENDPOINT = 'http://localhost:3000/admin/api'
-
-const USER = `
-  query {
-    authenticatedUser {
-      id
-      email
-      name
-      isAdmin
-    }
-  }
-`
-
-const REGISTER = `
-  mutation createUser($email: String!, $name: String!, $password: String!) {
-    createUser(data: { email: $email, name: $name, password: $password }) {
-      id
-      email
-      name
-      isAdmin
-    }
-  }
-`
-
-const LOGIN = `
-  mutation authUser($email: String!, $password: String!) {
-    authenticateUserWithPassword(email: $email, password: $password) {
-      item {
-        id
-        email
-        name
-        isAdmin
-      }
-    }
-  }
-`
-
-const LOGOUT = `
-  mutation unauthUser {
-    unauthenticateUser {
-      success
-    }
-  }
-`
+import { get, post } from './useData'
 
 const Context = React.createContext({})
 
@@ -126,40 +81,32 @@ const reducer = (state, action) => {
 export default () => {
   const { dispatch, state } = useContext(Context)
 
-  const query = async (QUERY, variables = {}) => {
-    let data
-
-    try {
-      data = await request(ENDPOINT, QUERY, variables)
-    } catch (e) {
-      dispatch({
-        type: 'ERROR',
-        payload: {
-          error: e.message,
-        },
-      })
-      return null
-    }
-
-    return data
-  }
-
   useEffect(() => {
     checkUser()
   }, [])
 
   const checkUser = async () => {
-    const data = await query(USER)
-    if (!data) return
+    if (!state.user) return
 
-    if (data.authenticatedUser === state.user) return
+    const response = await get('/user')
 
-    if (data.authenticatedUser) {
+    if (response.error) {
+      return dispatch({
+        type: 'ERROR',
+        payload: {
+          error: response.error,
+        },
+      })
+    }
+
+    if (response.user === state.user) return
+
+    if (response.user) {
       dispatch({ type: 'LOGIN' })
       dispatch({
         type: 'LOGGED_IN',
         payload: {
-          user: data.authenticatedUser,
+          user: response.user,
         },
       })
     } else {
@@ -168,34 +115,51 @@ export default () => {
     }
   }
 
-  const register = async props => {
+  const register = async data => {
     dispatch({ type: 'REGISTER' })
 
-    const data = await query(REGISTER, props)
-    if (!data) return
+    const response = await post('/register', data)
 
-    if (!data.createUser) {
-      dispatch({ type: 'LOGGED_OUT' })
-      return
+    if (response.error) {
+      return dispatch({
+        type: 'ERROR',
+        payload: {
+          error: response.error,
+        },
+      })
     }
 
-    login(props)
-  }
-
-  const login = async props => {
-    dispatch({ type: 'LOGIN' })
-
-    const data = await query(LOGIN, props)
-    if (!data) return
-
-    if (
-      data.authenticateUserWithPassword &&
-      data.authenticateUserWithPassword.item
-    ) {
+    if (response.user) {
       dispatch({
         type: 'LOGGED_IN',
         payload: {
-          user: data.authenticateUserWithPassword.item,
+          user: response.user,
+        },
+      })
+    } else {
+      dispatch({ type: 'LOGGED_OUT' })
+    }
+  }
+
+  const login = async data => {
+    dispatch({ type: 'LOGIN' })
+
+    const response = await post('/login', data)
+
+    if (response.error) {
+      return dispatch({
+        type: 'ERROR',
+        payload: {
+          error: response.error,
+        },
+      })
+    }
+
+    if (response.user) {
+      dispatch({
+        type: 'LOGGED_IN',
+        payload: {
+          user: response.user,
         },
       })
     } else {
@@ -206,22 +170,19 @@ export default () => {
   const logout = async () => {
     dispatch({ type: 'LOGOUT' })
 
-    const data = await query(LOGOUT)
-    if (!data) return
+    const response = await post('/logout')
 
-    if (data.unauthenticateUser && data.unauthenticateUser.success) {
-      dispatch({ type: 'LOGGED_OUT' })
-    } else {
-      dispatch({
+    if (response.error) {
+      return dispatch({
         type: 'ERROR',
         payload: {
-          error: 'Logout no work :(',
+          error: response.error,
         },
       })
     }
-  }
 
-  // console.log(state.current, state.user)
+    dispatch({ type: 'LOGGED_OUT' })
+  }
 
   if (state.error) {
     console.log(state.error)
