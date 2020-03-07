@@ -1,7 +1,8 @@
 {
   "build": {
     "env": {
-      "FAUNA_SERVER_KEY": "@fauna-secret-key"
+      "FAUNA_SERVER_KEY": "@fauna-secret-key",
+      "BASEURL": "@baseurl"
     }
   }
 }
