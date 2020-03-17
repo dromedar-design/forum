@@ -9,9 +9,9 @@ describe('register', () => {
     expect.assertions(2)
 
     const { url, server } = await testServer(handler)
-    const { res, data } = await post(url)
+    const { res, error } = await post(url)
 
-    expect(data.error).toBe('missing register data')
+    expect(error).toBe('missing register data')
     expect(res.status).toBe(400)
 
     return server.close()
@@ -27,13 +27,13 @@ describe('register', () => {
     }
 
     const { url, server } = await testServer(handler)
-    const { res, data } = await post(url, userData)
+    const { res, user } = await post(url, userData)
 
     expect(res.status).toBe(200)
-    expect(data.user.email).toBe(userData.email)
-    expect(data.user.name).toBe(userData.name)
+    expect(user.email).toBe(userData.email)
+    expect(user.name).toBe(userData.name)
 
-    await remove(data.user)
+    await remove(user)
 
     return server.close()
   })

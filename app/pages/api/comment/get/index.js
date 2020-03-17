@@ -1,5 +1,5 @@
 import { query as q } from 'faunadb'
-import { serverClient } from '../../../../utils/fauna-auth'
+import { serverClient } from '../../../../utils/fauna'
 
 export default async (req, res) => {
   try {

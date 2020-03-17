@@ -14,9 +14,9 @@ describe('login', () => {
     expect.assertions(2)
 
     const { url, server } = await testServer(handler)
-    const { res, data } = await post(url)
+    const { res, error } = await post(url)
 
-    expect(data.error).toBe('missing login data')
+    expect(error).toBe('missing login data')
     expect(res.status).toBe(400)
 
     return server.close()
@@ -26,9 +26,9 @@ describe('login', () => {
     expect.assertions(2)
 
     const { url, server } = await testServer(handler)
-    const { res, data } = await post(url, userData)
+    const { res, error } = await post(url, userData)
 
-    expect(data.error).toBe('authentication failed')
+    expect(error).toBe('authentication failed')
     expect(res.status).toBe(401)
 
     return server.close()
@@ -40,12 +40,12 @@ describe('login', () => {
     await create(userData)
 
     const { url, server } = await testServer(handler)
-    const { res, data } = await post(url, userData)
+    const { res, user } = await post(url, userData)
 
     expect(res.status).toBe(200)
-    expect(data.user.email).toBe(userData.email)
+    expect(user.email).toBe(userData.email)
 
-    await remove(data.user)
+    await remove(user)
 
     return server.close()
   })

@@ -1,6 +1,6 @@
 import cookie from 'cookie'
 import { query as q } from 'faunadb'
-import { FAUNA_SECRET_COOKIE, serverClient } from '../../../utils/fauna-auth'
+import { FAUNA_SECRET_COOKIE, serverClient } from '../../../utils/fauna'
 import { getUserRef } from '../user'
 
 export default async (req, res) => {

@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-unfetch'
+import { User } from '../db/user'
 
 if (process.env.NODE_ENV === 'test') {
   require('dotenv').config()
@@ -19,20 +20,22 @@ interface prepareOptions {
   headers?: Headers
 }
 
+export interface CustomResponse {
+  res: Response
+  user?: User
+  error?: string
+}
+
 const fetcher = ({ url, ...extra }: prepareOptions) =>
   fetch(url, {
     ...extra,
-  }).then(async res => {
-    // try {
-    return { res, data: await res.json() }
-    // } catch (e) {
-    //   if (e.type !== 'invalid-json') {
-    //     throw e
-    //   }
+  }).then(
+    async (res: Response): Promise<CustomResponse> => {
+      const data = await res.json()
 
-    //   return { res, data: {} }
-    // }
-  })
+      return { res, ...data }
+    }
+  )
 
 export const prepareGet = (
   url: string,

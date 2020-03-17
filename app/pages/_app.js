@@ -3,7 +3,7 @@ import App from 'next/app'
 import { SWRConfig } from 'swr'
 import Layout from '../components/Layout'
 import '../css/tailwind.css'
-import { FAUNA_SECRET_COOKIE } from '../utils/fauna-auth'
+import { FAUNA_SECRET_COOKIE } from '../utils/fauna'
 import { get } from '../utils/http'
 import { AuthProvider } from '../utils/useAuth'
 import { DataProvider } from '../utils/useData'
@@ -38,7 +38,7 @@ MyApp.getInitialProps = async appContext => {
     const user = await getUser(faunaSecret)
 
     if (!user) {
-      return { pageProps }
+      return { pageProps, user: null }
     }
 
     return {

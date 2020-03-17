@@ -14,9 +14,9 @@ describe('user', () => {
     expect.assertions(2)
 
     const { url, server } = await testServer(handler)
-    const { res, data } = await get(url)
+    const { res, error } = await get(url)
 
-    expect(data.error).toBe('missing auth secret')
+    expect(error).toBe('missing auth secret')
     expect(res.status).toBe(401)
 
     return server.close()
@@ -29,12 +29,12 @@ describe('user', () => {
     const secret = await login(userData)
 
     const { url, server } = await testServer(handler)
-    const { res, data } = await get(url, { secret })
+    const { res, user } = await get(url, { secret })
 
     expect(res.status).toBe(200)
-    expect(data.user.email).toBe(userData.email)
+    expect(user.email).toBe(userData.email)
 
-    await remove(data.user)
+    await remove(user)
 
     server.close()
   })

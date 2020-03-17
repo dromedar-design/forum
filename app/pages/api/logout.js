@@ -1,6 +1,6 @@
 import cookie from 'cookie'
 import { query as q } from 'faunadb'
-import { faunaClient, FAUNA_SECRET_COOKIE } from '../../utils/fauna-auth'
+import { faunaClient, FAUNA_SECRET_COOKIE } from '../../utils/fauna'
 
 export default async (req, res) => {
   const cookies = cookie.parse(req.headers.cookie ?? '')
