@@ -4,8 +4,9 @@ import { SWRConfig } from 'swr'
 import Layout from '../components/Layout'
 import '../css/tailwind.css'
 import { FAUNA_SECRET_COOKIE } from '../utils/fauna-auth'
+import { get } from '../utils/http'
 import { AuthProvider } from '../utils/useAuth'
-import { DataProvider, get } from '../utils/useData'
+import { DataProvider } from '../utils/useData'
 import { getUser } from './api/user'
 
 const MyApp = ({ Component, pageProps, user }) => {

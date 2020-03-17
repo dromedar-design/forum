@@ -1,33 +1,24 @@
-import cookie from 'cookie'
-import { query as q } from 'faunadb'
-import { faunaClient, FAUNA_SECRET_COOKIE } from '../../utils/fauna-auth'
-
-export const getUserRef = async faunaSecret =>
-  await faunaClient(faunaSecret).query(q.Identity())
-
-export const getUser = async faunaSecret => {
-  const ref = await getUserRef(faunaSecret)
-
-  const { id, item } = await faunaClient(faunaSecret).query({
-    id: q.Select(['id'], ref),
-    item: q.Get(ref),
-  })
-
-  return {
-    id,
-    ...item.data,
-  }
-}
+import { get, getFromCookie } from '../../db/user'
 
 export default async (req, res) => {
-  const cookies = cookie.parse(req.headers.cookie ?? '')
-  const faunaSecret = cookies[FAUNA_SECRET_COOKIE]
+  try {
+    const secret = req.query.secret || getFromCookie(req)
 
-  if (!faunaSecret) {
-    return res.status(401).json({
-      error: 'Auth cookie missing.',
-    })
+    if (!secret) {
+      throw new Error('missing auth secret')
+    }
+
+    res.status(200).json(await get(secret))
+  } catch (e) {
+    let status = 400
+
+    if (
+      e.message === 'authentication failed' ||
+      e.message === 'missing auth secret'
+    ) {
+      status = 401
+    }
+
+    res.status(status).json({ error: e.message })
   }
-
-  res.status(200).json({ user: await getUser(faunaSecret) })
 }

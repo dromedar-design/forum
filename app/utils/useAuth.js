@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useReducer } from 'react'
-import { get, post } from './useData'
+import { get, post } from './http'
 
 const Context = React.createContext({})
 

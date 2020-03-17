@@ -1,8 +1,6 @@
-import fetch from 'isomorphic-unfetch'
 import React, { useContext, useReducer } from 'react'
 import useSWR, { trigger } from 'swr'
-
-const BASEURL = process.env.BASEURL + '/api'
+import { post } from './http'
 
 const Context = React.createContext({})
 
@@ -70,35 +68,6 @@ const reducer = (state, action) => {
     default:
       return state
   }
-}
-
-const fetcher = ({ url, method, extra = {} }) =>
-  fetch(BASEURL + url, {
-    method: method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    ...extra,
-  }).then(res => res.json())
-
-export const get = (url, variables = {}) => {
-  let params = new URLSearchParams()
-  Object.keys(variables).forEach(key => params.append(key, variables[key]))
-
-  return fetcher({
-    url: `${url}?${params}`,
-    method: 'GET',
-  })
-}
-
-export const post = (url, variables = {}) => {
-  return fetcher({
-    url,
-    method: 'POST',
-    extra: {
-      body: JSON.stringify(variables),
-    },
-  })
 }
 
 export default () => {

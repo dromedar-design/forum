@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import Body from '../components/Body'
-import useData, { get } from '../utils/useData'
+import { get } from '../utils/http'
+import useData from '../utils/useData'
 
 const QUERY = '/comment/get'
 
