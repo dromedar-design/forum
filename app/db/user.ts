@@ -24,23 +24,30 @@ export interface User extends BaseUser {
   id: number
 }
 
-export const ref = (id: number) => q.Ref(q.Collection(COLLECTION), id)
-
-export const transform = (response: {
+interface faunaResponse {
   ref: {
     id: number
   }
   data: BaseUser
-}): User => ({
+}
+
+export const ref = (id: number) => q.Ref(q.Collection(COLLECTION), id)
+
+export const transform = (response: faunaResponse): User => ({
   id: response.ref.id,
   ...response.data,
 })
 
-export const setCookie = (secret: string, res: NextApiResponse) => {
-  if (!secret) {
-    throw new Error('invalid secret')
+const withTransform = async (
+  func: (user: RawUser) => Promise<faunaResponse>,
+  data: RawUser
+) => {
+  return {
+    user: transform(await func(data)),
   }
+}
 
+export const setCookie = (secret: string, res: NextApiResponse) => {
   const cookieSerialized = serializeFaunaCookie(secret)
   res.setHeader('Set-Cookie', cookieSerialized)
 }
@@ -50,16 +57,18 @@ export const getFromCookie = (req: NextApiRequest): string => {
   return cookies[FAUNA_SECRET_COOKIE]
 }
 
-export const create = async ({ password, ...data }: RawUser) => ({
-  user: transform(
-    await serverClient.query(
-      q.Create(q.Collection(COLLECTION), {
-        credentials: { password },
-        data: { ...data },
-      })
-    )
-  ),
-})
+export const createRaw = ({
+  password,
+  ...data
+}: RawUser): Promise<faunaResponse> =>
+  serverClient.query(
+    q.Create(q.Collection(COLLECTION), {
+      credentials: { password },
+      data: { ...data },
+    })
+  )
+
+export const create = (data: RawUser) => withTransform(createRaw, data)
 
 export const login = async ({ email, password }: RawUser) => {
   const { secret } = await serverClient.query(
@@ -67,10 +76,6 @@ export const login = async ({ email, password }: RawUser) => {
       password,
     })
   )
-
-  if (!secret) {
-    throw new Error('invalid secret')
-  }
 
   return secret
 }

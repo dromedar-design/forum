@@ -14,7 +14,8 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "test": "jest --watch --runInBand --detectOpenHandles"
+    "test": "jest --watch --runInBand --detectOpenHandles",
+    "test:cov": "jest --coverage --runInBand --detectOpenHandles"
   },
   "dependencies": {
     "@fullhuman/postcss-purgecss": "^2.0.6",

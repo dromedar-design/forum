@@ -13,6 +13,7 @@ export default async (req, res) => {
     let status = 400
 
     if (
+      e.message === 'unauthorized' ||
       e.message === 'authentication failed' ||
       e.message === 'missing auth secret'
     ) {

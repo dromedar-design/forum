@@ -4,38 +4,51 @@ import handler from '../../pages/api/user'
 import { get } from '../../utils/http'
 import { testServer } from '../../utils/testing'
 
-describe('user', () => {
-  const userData = {
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-  }
+let db, user
+const userData = {
+  email: faker.internet.email(),
+  password: faker.internet.password(),
+}
 
-  test('returns 401 with wrong credentials', async () => {
+beforeAll(async () => {
+  db = await testServer(handler)
+  const resp = await create(userData)
+  user = resp.user
+})
+
+afterAll(async () => {
+  await remove(user)
+  db.server.close()
+})
+
+describe('user', () => {
+  test('returns 401 without wrong credentials', async () => {
     expect.assertions(2)
 
-    const { url, server } = await testServer(handler)
-    const { res, error } = await get(url)
+    const { res, error } = await get(db.url)
 
     expect(error).toBe('missing auth secret')
     expect(res.status).toBe(401)
-
-    return server.close()
   })
 
-  test('logs in succesfully with correct credentials', async () => {
+  test('does not log in with wrong secret', async () => {
     expect.assertions(2)
 
-    await create(userData)
-    const secret = await login(userData)
+    const { res, error } = await get(db.url, {
+      secret: 'wrong_secret',
+    })
 
-    const { url, server } = await testServer(handler)
-    const { res, user } = await get(url, { secret })
+    expect(error).toBe('unauthorized')
+    expect(res.status).toBe(401)
+  })
+
+  test('logs in succesfully only with correct secret', async () => {
+    expect.assertions(2)
+
+    const secret = await login(userData)
+    const { res, user } = await get(db.url, { secret })
 
     expect(res.status).toBe(200)
     expect(user.email).toBe(userData.email)
-
-    await remove(user)
-
-    server.close()
   })
 })
