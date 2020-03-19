@@ -1,13 +1,11 @@
-import cookie from 'cookie'
 import { query as q } from 'faunadb'
-import { FAUNA_SECRET_COOKIE, serverClient } from '../../../utils/fauna'
-import { getUserRef } from '../user'
+import { get, getFromCookie } from '../../../db/user'
+import { serverClient } from '../../../utils/fauna'
 
 export default async (req, res) => {
-  const cookies = cookie.parse(req.headers.cookie ?? '')
-  const faunaSecret = cookies[FAUNA_SECRET_COOKIE]
+  const secret = req.query.secret || getFromCookie(req)
 
-  if (!faunaSecret) {
+  if (!secret) {
     return res.status(401).json({
       error: 'No user',
     })
@@ -20,11 +18,13 @@ export default async (req, res) => {
   }
 
   try {
+    const { user } = await get(secret)
+
     const response = await serverClient.query(
       q.Create(q.Collection('posts'), {
         data: {
           createdAt: q.Now(),
-          user: q.Select(['id'], await getUserRef(faunaSecret)),
+          user: user.id,
           text: req.body.text,
           parent: req.body.parent,
         },

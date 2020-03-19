@@ -1,11 +1,11 @@
 {
-  "name": "@keystonejs/example-projects-starter",
-  "description": "An example KeystoneJS project with a User list and Authentication.",
+  "name": "@dromedar-design/forum",
+  "description": "some forum",
   "private": true,
-  "version": "5.0.1",
-  "author": "The KeystoneJS Development Team",
-  "repository": "https://github.com/keystonejs/keystone.git",
-  "homepage": "https://github.com/keystonejs/keystone",
+  "version": "0.0.1",
+  "author": "@dromedar/design",
+  "repository": "https://github.com/dromedar-design/forum",
+  "homepage": "https://dromedar.design",
   "license": "MIT",
   "engines": {
     "node": ">=8.4.0"
@@ -15,7 +15,11 @@
     "build": "next build",
     "start": "next start",
     "test": "jest --watch --runInBand --detectOpenHandles",
-    "test:cov": "jest --coverage --runInBand --detectOpenHandles"
+    "test:cov": "jest --coverage --runInBand --detectOpenHandles",
+    "check-types": "tsc",
+    "prettier": "prettier --ignore-path .gitignore \"**/*.+(js|json|ts|tsx)\"",
+    "check-format": "npm run prettier -- --list-different",
+    "validate": "npm run check-types && npm run check-format && npm run build"
   },
   "dependencies": {
     "@fullhuman/postcss-purgecss": "^2.0.6",
@@ -26,12 +30,12 @@
     "cross-env": "^5.2.0",
     "dotenv": "^8.2.0",
     "faunadb": "^2.13.0",
-    "framer-motion": "^2.0.0-beta.10",
+    "framer-motion": "^2.0.0-beta.11",
     "graphql": "^14.6.0",
     "graphql-request": "^1.8.2",
     "isomorphic-unfetch": "^3.0.0",
     "js-cookie": "^2.2.1",
-    "next": "^9.3.0",
+    "next": "^9.3.1",
     "next-server": "^9.0.5",
     "postcss-import": "^12.0.1",
     "postcss-nested": "^4.2.1",
@@ -46,12 +50,15 @@
     "@babel/core": "^7.8.7",
     "@babel/preset-env": "^7.8.7",
     "@testing-library/react": "^10.0.1",
-    "@types/node": "^13.9.1",
+    "@types/node": "^13.9.2",
     "@types/react": "^16.9.23",
     "@zeit/next-typescript": "^1.1.1",
     "babel-jest": "^25.1.0",
     "faker": "^4.1.0",
+    "husky": "^4.2.3",
     "jest": "^25.1.0",
+    "jest-watch-typeahead": "^0.4.2",
+    "prettier": "^1.19.1",
     "test-listen": "^1.1.0",
     "typescript": "^3.8.3"
   }
