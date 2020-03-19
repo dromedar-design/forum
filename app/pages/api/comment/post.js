@@ -1,5 +1,6 @@
 import { query as q } from 'faunadb'
-import { get, getFromCookie } from '../../../db/user'
+import { ref as commentRef, transform } from '../../../db/comment'
+import { get, getFromCookie, ref as userRef } from '../../../db/user'
 import { serverClient } from '../../../utils/fauna'
 
 export default async (req, res) => {
@@ -7,13 +8,13 @@ export default async (req, res) => {
 
   if (!secret) {
     return res.status(401).json({
-      error: 'No user',
+      error: 'missing auth secret',
     })
   }
 
   if (!req.body.text) {
     return res.status(400).json({
-      error: 'Text is required',
+      error: 'missing comment data',
     })
   }
 
@@ -21,18 +22,19 @@ export default async (req, res) => {
     const { user } = await get(secret)
 
     const response = await serverClient.query(
-      q.Create(q.Collection('posts'), {
+      q.Create(q.Collection('comments'), {
         data: {
           createdAt: q.Now(),
-          user: user.id,
           text: req.body.text,
-          parent: req.body.parent,
+          user: userRef(user),
+          parent: req.body.parent ? commentRef({ id: req.body.parent }) : null,
         },
       })
     )
 
     res.status(200).json({
-      response,
+      comment: transform(response),
+      items: [],
     })
   } catch (e) {
     console.log(e)

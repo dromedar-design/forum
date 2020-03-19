@@ -1,4 +1,4 @@
-import { createRaw, getRaw, loginRaw, remove } from '../user'
+import { createRaw, getRaw, loginRaw, ref, remove } from '../user'
 
 if (process.env.NODE_ENV === 'test') {
   require('dotenv').config()
@@ -22,6 +22,21 @@ afterAll(() => {
 })
 
 describe('user model', () => {
+  test('creating a new user is possible', async () => {
+    const resp = await ref({
+      id: 1,
+    })
+
+    expect(resp).toMatchInlineSnapshot(`
+      Object {
+        "id": 1,
+        "ref": Object {
+          "collection": "users",
+        },
+      }
+    `)
+  })
+
   test('creating a new user is possible', async () => {
     const resp = await createRaw({
       email: 'custom@mail.com',
@@ -77,15 +92,15 @@ describe('user model', () => {
   })
 
   test('getting a logged in user is possible', async () => {
-    const resp = await getRaw(process.env.FAUNA_TEST_KEY)
+    const resp = await getRaw('secretString')
 
     expect(resp).toMatchInlineSnapshot(`
-Object {
-  "get": Object {
-    "identity": null,
-  },
-}
-`)
+      Object {
+        "get": Object {
+          "identity": null,
+        },
+      }
+    `)
   })
 
   test('deleting a user is possible', async () => {

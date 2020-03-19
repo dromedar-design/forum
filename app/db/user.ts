@@ -31,7 +31,13 @@ interface faunaResponse {
   data: BaseUser
 }
 
-export const ref = (id: number) => q.Ref(q.Collection(COLLECTION), id)
+export const ref = (user: User) => {
+  if (!user) {
+    return null
+  }
+
+  return q.Ref(q.Collection(COLLECTION), user.id)
+}
 
 export const transform = (response: faunaResponse): User => ({
   id: response.ref.id,
@@ -84,4 +90,4 @@ export const getRaw = (secret: string) =>
 
 export const get = (secret: string) => withTransform(getRaw, secret)
 
-export const remove = ({ id }: User) => serverClient.query(q.Delete(ref(id)))
+export const remove = (user: User) => serverClient.query(q.Delete(ref(user)))

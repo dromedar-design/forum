@@ -7,7 +7,7 @@ export default async (req, res) => {
       q.Map(
         q.Paginate(
           // make paginatable
-          q.Match(q.Index('top_posts'))
+          q.Match(q.Index('all_comments'))
         ),
         ref => {
           return {

@@ -2,7 +2,7 @@ import { query as q } from 'faunadb'
 import { serverClient } from '../../../../utils/fauna'
 
 export default async (req, res) => {
-  const ref = q.Ref(q.Collection('posts'), req.query.id)
+  const ref = q.Ref(q.Collection('comments'), req.query.id)
 
   try {
     const response = await serverClient.query({
@@ -16,7 +16,7 @@ export default async (req, res) => {
           // make paginatable
           q.Match(
             // query index
-            q.Index('posts_by_parent'), // specify source
+            q.Index('comments_by_parent'), // specify source
             req.query.id
           )
         ),
