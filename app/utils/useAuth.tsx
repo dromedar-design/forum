@@ -21,7 +21,7 @@ const defaultState: State = {
 
 const Context = React.createContext({
   state: defaultState,
-  dispatch: (action: Action): State | void => defaultState,
+  dispatch: (action: Action): State => defaultState,
 })
 
 export const AuthProvider = ({
