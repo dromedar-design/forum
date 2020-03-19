@@ -38,10 +38,7 @@ export const transform = (response: faunaResponse): User => ({
   ...response.data,
 })
 
-const withTransform = async (
-  func: (user: RawUser) => Promise<faunaResponse>,
-  data: RawUser
-) => {
+const withTransform = async (func: (arg: any) => any, data: any) => {
   return {
     user: transform(await func(data)),
   }
@@ -70,19 +67,21 @@ export const createRaw = ({
 
 export const create = (data: RawUser) => withTransform(createRaw, data)
 
-export const login = async ({ email, password }: RawUser) => {
-  const { secret } = await serverClient.query(
+export const loginRaw = ({
+  email,
+  password,
+}: RawUser): Promise<{ secret: string }> =>
+  serverClient.query(
     q.Login(q.Match(q.Index(INDEX), email), {
       password,
     })
   )
 
-  return secret
-}
+export const login = async (data: RawUser) => (await loginRaw(data)).secret
 
-export const get = async (secret: string) => ({
-  user: transform(await faunaClient(secret).query(q.Get(q.Identity()))),
-})
+export const getRaw = (secret: string) =>
+  faunaClient(secret).query(q.Get(q.Identity()))
 
-export const remove = async ({ id }: User) =>
-  await serverClient.query(q.Delete(ref(id)))
+export const get = (secret: string) => withTransform(getRaw, secret)
+
+export const remove = ({ id }: User) => serverClient.query(q.Delete(ref(id)))

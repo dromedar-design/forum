@@ -4,7 +4,7 @@ import handler from '../../pages/api/user'
 import { get } from '../../utils/http'
 import { testServer } from '../../utils/testing'
 
-let db, user
+let db, u
 const userData = {
   email: faker.internet.email(),
   password: faker.internet.password(),
@@ -13,11 +13,11 @@ const userData = {
 beforeAll(async () => {
   db = await testServer(handler)
   const resp = await create(userData)
-  user = resp.user
+  u = resp.user
 })
 
 afterAll(async () => {
-  await remove(user)
+  await remove(u)
   db.server.close()
 })
 
