@@ -2,13 +2,27 @@ import React, { ReactNode, useContext, useEffect, useReducer } from 'react'
 import { RawUser, User } from '../db/user'
 import { get, post } from './http'
 
-const Context = React.createContext({})
+interface Action {
+  type: string
+  payload?: { error?: string; user?: User }
+}
 
 interface State {
   user: User | null
   current: 'IN' | 'OUT' | 'LOADING'
   error: string | null
 }
+
+const defaultState: State = {
+  user: null,
+  current: 'LOADING',
+  error: null,
+}
+
+const Context = React.createContext({
+  state: defaultState,
+  dispatch: (action: Action): State | void => defaultState,
+})
 
 export const AuthProvider = ({
   children,
@@ -26,10 +40,7 @@ export const AuthProvider = ({
   return <Context.Provider value={{ state, dispatch }} children={children} />
 }
 
-const reducer = (
-  state: State,
-  action: { type: string; payload?: { error?: string; user?: User } }
-) => {
+const reducer = (state: State, action: Action): State => {
   switch (state.current) {
     case 'OUT':
       switch (action.type) {
@@ -58,7 +69,7 @@ const reducer = (
             ...state,
             user: null,
             current: 'OUT',
-            error: action.payload.error,
+            error: action.payload.error || null,
           }
 
         case 'LOGGED_IN':
@@ -66,7 +77,7 @@ const reducer = (
 
           return {
             ...state,
-            user: action.payload.user,
+            user: action.payload.user || null,
             current: 'IN',
           }
 

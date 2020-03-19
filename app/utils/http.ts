@@ -56,7 +56,7 @@ export const prepareGet = (
   }
 }
 
-export const get = (url: string, variables: vars = {}) =>
+export const get = (url: string, variables: any = {}) =>
   fetcher(prepareGet(url, variables))
 
 export const preparePost = (
@@ -75,5 +75,5 @@ export const preparePost = (
   return config
 }
 
-export const post = (url: string, variables: vars = {}) =>
+export const post = (url: string, variables: any = {}) =>
   fetcher(preparePost(url, variables))
