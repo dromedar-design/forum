@@ -25,10 +25,28 @@ const secret =
 //   data: object[]
 // }
 
-const transformItem = response => ({
-  id: response.ref.id,
-  ...response.data,
-})
+const transformValue = value => {
+  if (typeof value === 'object') {
+    if (value.hasOwnProperty('value')) {
+      return value.value.id
+    }
+  }
+
+  return value
+}
+
+const transformItem = response => {
+  const data = {}
+
+  for (const key in response.data) {
+    data[key] = transformValue(response.data[key])
+  }
+
+  return {
+    id: response.ref.id,
+    ...data,
+  }
+}
 
 const transformList = response => response.data.map(item => transformItem(item))
 
@@ -93,58 +111,73 @@ const find = async props => transformItem(await findRaw(props))
 // = = = = =
 // = = = = =
 
-const Model = ({ secret, ...config }) => {
+const loginRaw = async ({ data: { email, password }, client, collection }) => {
+  const list = `${collection}_by_email`
+
+  return client.query(
+    q.Login(q.Match(q.Index(list), email), {
+      password,
+    })
+  )
+}
+
+const login = async data => (await loginRaw(data)).secret
+
+const bySecretRaw = ({ secret }) =>
+  new Client({ secret }).query(q.Get(q.Identity()))
+
+const bySecret = async data => transformItem(await bySecretRaw(data))
+
+// = = = = =
+// = = = = =
+// = = = = =
+
+const Model = ({ secret, auth, ...config }) => {
+  if (!secret) {
+    throw new Error('no secret was provided')
+  }
+
   config.client = new Client({ secret })
 
-  return {
+  let model = {
     config,
     create: data => create({ ...config, data }),
     all: props => all({ ...config, ...props }),
     remove: data => remove({ ...config, data }),
     where: data => where({ ...config, data }),
     find: id => find({ ...config, id }),
+    ref: data => ref({ ...config, data }),
   }
+
+  if (auth) {
+    model.login = data => login({ ...config, data })
+    model.bySecret = secret => bySecret({ ...config, secret })
+  }
+
+  return model
 }
 
 export const Factory = options => {
+  if (!options.name) {
+    throw new Error('no name was provided')
+  }
+
   const config = {
-    name: '',
-    secret: '',
     collection: `${options.name}s`,
     index: `all_${options.name}s`,
-    data: {},
     ...options,
   }
 
   return Model(config)
 }
 
-let DB = []
-
-export const Mock = {
-  reset: () => (DB = []),
-  create: ({ password, ...data }) => {
-    const item = {
-      id: String(new Date().getTime()),
-      ...data,
-    }
-
-    DB.push(item)
-
-    return item
-  },
-  all: () => {
-    return DB
-  },
-  remove: data => {
-    DB = DB.filter(item => item.id !== data.id)
-    return true
-  },
-  where: (key, value) => DB.filter(item => item[key] === value),
-  find: id => DB.find(item => item.id === id),
-}
-
 export const User = Factory({
   name: 'user',
+  secret,
+  auth: true,
+})
+
+export const Comment = Factory({
+  name: 'comment',
   secret,
 })

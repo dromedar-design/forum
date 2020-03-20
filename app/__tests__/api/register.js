@@ -4,6 +4,8 @@ import handler from '../../pages/api/register'
 import { post } from '../../utils/http'
 import { testServer } from '../../utils/testing'
 
+jest.mock('../../db/Model')
+
 let db
 const userData = {
   email: faker.internet.email(),

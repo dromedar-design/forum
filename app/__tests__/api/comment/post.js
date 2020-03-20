@@ -46,9 +46,9 @@ describe('register', () => {
   })
 
   test('creates comment when the data is correct', async () => {
-    expect.assertions(4)
+    expect.assertions(3)
 
-    const { res, comment, items } = await post(
+    const { res, comment } = await post(
       `${db.url}?secret=${secret}`,
       commentData
     )
@@ -56,7 +56,6 @@ describe('register', () => {
     expect(res.status).toBe(200)
     expect(comment.text).toBe(commentData.text)
     expect(comment.name).toBe(commentData.name)
-    expect(items.length).toBe(0)
 
     await removeComment(comment)
   })
@@ -69,17 +68,15 @@ describe('register', () => {
       commentData
     )
 
-    const { res, comment, items } = await post(`${db.url}?secret=${secret}`, {
+    const { res, comment } = await post(`${db.url}?secret=${secret}`, {
       parent: parent.id,
       ...commentData,
     })
 
-    console.log(comment, items)
-
     expect(res.status).toBe(200)
     expect(comment.text).toBe(commentData.text)
     expect(comment.name).toBe(commentData.name)
-    expect(items.length).toBe(1)
+    expect(comment.parent).toBe(parent.id)
 
     await removeComment(parent)
     await removeComment(comment)

@@ -32,10 +32,6 @@ interface faunaResponse {
 }
 
 export const ref = (user: User) => {
-  if (!user) {
-    return null
-  }
-
   return q.Ref(q.Collection(COLLECTION), user.id)
 }
 

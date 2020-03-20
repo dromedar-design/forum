@@ -1,7 +1,6 @@
-import { query as q } from 'faunadb'
-import { ref as commentRef, transform } from '../../../db/comment'
-import { get, getFromCookie, ref as userRef } from '../../../db/user'
-import { serverClient } from '../../../utils/fauna'
+import { ref as commentRef } from '../../../db/comment'
+import { Comment, User } from '../../../db/Model'
+import { getFromCookie } from '../../../db/user'
 
 export default async (req, res) => {
   const secret = req.query.secret || getFromCookie(req)
@@ -19,23 +18,18 @@ export default async (req, res) => {
   }
 
   try {
-    const { user } = await get(secret)
+    const user = await User.bySecret(secret)
 
-    const response = await serverClient.query(
-      q.Create(q.Collection('comments'), {
-        data: {
-          createdAt: q.Now(),
-          text: req.body.text,
-          user: userRef(user),
-          parent: req.body.parent ? commentRef({ id: req.body.parent }) : null,
-        },
-      })
-    )
-
-    res.status(200).json({
-      comment: transform(response),
-      items: [],
+    const comment = await Comment.create({
+      createdAt: new Date().getTime(),
+      text: req.body.text,
+      user: User.ref(user),
+      parent: req.body.parent ? commentRef({ id: req.body.parent }) : null,
     })
+
+    // console.log(comment)
+
+    res.status(200).json({ comment })
   } catch (e) {
     console.log(e)
 
