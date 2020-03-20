@@ -1,5 +1,5 @@
 import faker from 'faker'
-import { remove } from '../../db/user'
+import { User } from '../../db/Model'
 import handler from '../../pages/api/register'
 import { post } from '../../utils/http'
 import { testServer } from '../../utils/testing'
@@ -38,6 +38,6 @@ describe('register', () => {
     expect(user.email).toBe(userData.email)
     expect(user.name).toBe(userData.name)
 
-    await remove(user)
+    await User.remove(user)
   })
 })

@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next-server/dist/lib/utils'
-import { create, get, login, RawUser, setCookie } from '../../db/user'
+import { User } from '../../db/Model'
+import { login, RawUser, setCookie } from '../../db/user'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { email, password, name }: RawUser = await req.body
@@ -9,13 +10,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       throw new Error('missing register data')
     }
 
-    await create({ email, password, name })
+    const user = await User.create({ email, password, name })
     const secret = await login({ email, password })
 
     setCookie(secret, res)
 
-    res.status(200).json(await get(secret))
+    res.status(200).json({ user })
   } catch (e) {
+    // console.error(e)
     res.status(400).json({ error: e.message })
   }
 }
