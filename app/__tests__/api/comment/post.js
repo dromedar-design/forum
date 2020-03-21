@@ -30,7 +30,7 @@ describe('register', () => {
   test('responds 401 to missing user', async () => {
     const { res, error } = await post(db.url)
 
-    expect(error).toBe('missing auth secret')
+    expect(error).toBe('missing auth token')
     expect(res.status).toBe(401)
   })
 

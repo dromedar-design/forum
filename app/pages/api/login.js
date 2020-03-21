@@ -1,25 +1,19 @@
-import { get, login, setCookie } from '../../db/user'
+import { setCookie } from '../../db/helpers'
+import { User } from '../../db/Model'
+import wrapper from '../../db/wrapper'
 
-export default async (req, res) => {
-  const { email, password } = await req.body
+export default async (req, res) =>
+  wrapper(req, res, async (req, res) => {
+    const { email, password } = await req.body
 
-  try {
     if (!email || !password) {
       throw new Error('missing login data')
     }
 
-    const secret = await login({ email, password })
-
+    const secret = await User.login({ email, password })
     setCookie(secret, res)
 
-    res.status(200).json(await get(secret))
-  } catch (e) {
-    let status = 400
-
-    if (e.message === 'authentication failed') {
-      status = 401
+    return {
+      user: await User.bySecret(secret),
     }
-
-    res.status(status).json({ error: e.message })
-  }
-}
+  })

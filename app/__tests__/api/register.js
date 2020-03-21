@@ -23,8 +23,6 @@ afterAll(async () => {
 
 describe('register', () => {
   test('responds 400 to invalid data', async () => {
-    expect.assertions(2)
-
     const { res, error } = await post(db.url)
 
     expect(error).toBe('missing register data')
@@ -32,8 +30,6 @@ describe('register', () => {
   })
 
   test('creates user when the data is correct', async () => {
-    expect.assertions(3)
-
     const { res, user } = await post(db.url, userData)
 
     expect(res.status).toBe(200)

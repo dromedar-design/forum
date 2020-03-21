@@ -2,6 +2,8 @@ let DB = []
 
 const cleanDB = () => DB.map(({ password, secret, ...data }) => data)
 
+const randomString = () => String(Math.round(Math.random() * 999999999))
+
 export const User = {
   reset: () => (DB = []),
   create: data => {
@@ -16,7 +18,7 @@ export const User = {
     }
 
     const item = {
-      id: String(Math.round(Math.random() * 999999999)),
+      id: randomString(),
       ...attrs,
     }
 
@@ -32,17 +34,23 @@ export const User = {
   },
   where: (key, value) => cleanDB().filter(item => item[key] === value),
   find: id => cleanDB().find(item => item.id === id),
-  login: ({ email, password }) => {
-    const item = DB.find(item => item.email === email)
-    if (!item) return null
-
-    if (item.password !== password) {
-      throw new Error('unauthorized')
+  login: data => {
+    if (!data || !data.password || !data.email) {
+      throw new Error('invalid login data')
     }
 
-    const secret = String(new Date().getTime())
+    const item = DB.find(item => item.email === data.email)
+    if (!item) {
+      throw new Error('authentication failed')
+    }
+
+    if (item.password !== data.password) {
+      throw new Error('authentication failed')
+    }
+
+    const secret = randomString()
     DB = DB.map(item => {
-      if (item.email === email) {
+      if (item.email === data.email) {
         item.secret = secret
       }
 
@@ -52,6 +60,10 @@ export const User = {
     return secret
   },
   bySecret: secret => {
+    if (!secret || typeof secret !== 'string') {
+      throw new Error('invalid auth token')
+    }
+
     const item = DB.find(item => item.secret === secret)
     if (!item) {
       throw new Error('unauthorized')
@@ -61,4 +73,17 @@ export const User = {
     return secure
   },
   ref: ({ id }) => `@ref=${id}`,
+  logout: secret => {
+    if (!secret || typeof secret !== 'string') {
+      throw new Error('invalid auth token')
+    }
+
+    const item = DB.find(item => item.secret === secret)
+    if (!item) {
+      throw new Error('unauthorized')
+    }
+
+    DB = DB.filter(i => i.id !== item.id)
+    return true
+  },
 }

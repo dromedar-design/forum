@@ -70,17 +70,12 @@ const allRaw = props => index(props)
 
 const all = async props => transformList(await allRaw(props))
 
-const removeRaw = ({ client, ...props }) => client.query(q.Delete(ref(props)))
-
-const remove = async props => {
-  try {
-    await removeRaw(props)
-  } catch (e) {
-    return false
-  }
-
+const removeRaw = ({ client, ...props }) => {
+  client.query(q.Delete(ref(props)))
   return true
 }
+
+const remove = props => removeRaw(props)
 
 const whereRaw = ({ client, collection, data }) => {
   const list = `${collection}_by_${data[0]}`
@@ -111,22 +106,39 @@ const find = async props => transformItem(await findRaw(props))
 // = = = = =
 // = = = = =
 
-const loginRaw = async ({ data: { email, password }, client, collection }) => {
+const loginRaw = async ({ data, client, collection }) => {
+  if (!data || !data.password || !data.email) {
+    throw new Error('invalid login data')
+  }
+
   const list = `${collection}_by_email`
 
   return client.query(
-    q.Login(q.Match(q.Index(list), email), {
-      password,
+    q.Login(q.Match(q.Index(list), data.email), {
+      password: data.password,
     })
   )
 }
 
 const login = async data => (await loginRaw(data)).secret
 
-const bySecretRaw = ({ secret }) =>
-  new Client({ secret }).query(q.Get(q.Identity()))
+const bySecretRaw = ({ secret }) => {
+  if (!secret || typeof secret !== 'string') {
+    throw new Error('invalid auth token')
+  }
+
+  return new Client({ secret }).query(q.Get(q.Identity()))
+}
 
 const bySecret = async data => transformItem(await bySecretRaw(data))
+
+const logout = ({ secret }) => {
+  if (!secret || typeof secret !== 'string') {
+    throw new Error('invalid auth token')
+  }
+
+  return new Client({ secret }).query(q.Logout(false))
+}
 
 // = = = = =
 // = = = = =
@@ -152,6 +164,7 @@ const Model = ({ secret, auth, ...config }) => {
   if (auth) {
     model.login = data => login({ ...config, data })
     model.bySecret = secret => bySecret({ ...config, secret })
+    model.logout = secret => logout({ ...config, secret })
   }
 
   return model

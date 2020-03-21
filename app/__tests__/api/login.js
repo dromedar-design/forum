@@ -1,8 +1,10 @@
 import faker from 'faker'
-import { create, remove } from '../../db/user'
+import { User } from '../../db/Model'
 import handler from '../../pages/api/login'
 import { post } from '../../utils/http'
 import { testServer } from '../../utils/testing'
+
+jest.mock('../../db/Model')
 
 let db
 const userData = {
@@ -20,8 +22,6 @@ afterAll(async () => {
 
 describe('login', () => {
   test('returns 400 with no credentials', async () => {
-    expect.assertions(2)
-
     const { res, error } = await post(db.url)
 
     expect(error).toBe('missing login data')
@@ -29,8 +29,6 @@ describe('login', () => {
   })
 
   test('returns 401 with wrong credentials', async () => {
-    expect.assertions(2)
-
     const { res, error } = await post(db.url, userData)
 
     expect(error).toBe('authentication failed')
@@ -38,15 +36,13 @@ describe('login', () => {
   })
 
   test('logs in succesfully with correct credentials', async () => {
-    expect.assertions(2)
-
-    await create(userData)
+    await User.create(userData)
 
     const { res, user } = await post(db.url, userData)
 
     expect(res.status).toBe(200)
     expect(user.email).toBe(userData.email)
 
-    await remove(user)
+    await User.remove(user)
   })
 })

@@ -1,24 +1,13 @@
-import cookie from 'cookie'
-import { query as q } from 'faunadb'
-import { faunaClient, FAUNA_SECRET_COOKIE } from '../../utils/fauna'
+import { getSecretFromRequest, setCookie } from '../../db/helpers'
+import { User } from '../../db/Model'
+import wrapper from '../../db/wrapper'
 
-export default async (req, res) => {
-  const cookies = cookie.parse(req.headers.cookie ?? '')
-  const faunaSecret = cookies[FAUNA_SECRET_COOKIE]
-  if (!faunaSecret) {
-    // Already logged out.
-    return res.status(200).end()
-  }
-  // Invalidate secret (ie. logout from Fauna).
-  await faunaClient(faunaSecret).query(q.Logout(false))
-  // Clear cookie.
-  const cookieSerialized = cookie.serialize(FAUNA_SECRET_COOKIE, '', {
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: -1,
-    httpOnly: true,
-    path: '/',
+export default async (req, res) =>
+  wrapper(req, res, async (req, res) => {
+    const secret = getSecretFromRequest(req)
+    await User.logout(secret)
+
+    setCookie('', res)
+
+    return {}
   })
-  res.setHeader('Set-Cookie', cookieSerialized)
-  res.status(200).json({})
-}

@@ -1,6 +1,6 @@
 export default async (req, res, logic) => {
   try {
-    const response = await logic(req)
+    const response = await logic(req, res)
 
     res.status(200).json(response)
   } catch (e) {
@@ -8,13 +8,16 @@ export default async (req, res, logic) => {
     let status = 400
 
     if (e.requestResult?.statusCode) {
-      status = e.requestResult?.statusCode
+      status = e.requestResult.statusCode
     }
 
     if (
-      e.message === 'unauthorized' ||
-      e.message === 'authentication failed' ||
-      e.message === 'missing auth secret'
+      [
+        'unauthorized',
+        'authentication failed',
+        'missing auth token',
+        'invalid auth token',
+      ].includes(e.message)
     ) {
       status = 401
     }

@@ -5,6 +5,14 @@ import { User as Mock } from '../__mocks__/Model'
 let data,
   current = null
 
+beforeAll(async () => {
+  const users = await User.all()
+
+  users.forEach(user => {
+    User.remove(user)
+  })
+})
+
 beforeEach(() => {
   data = {
     email: faker.internet.email(),
@@ -17,8 +25,7 @@ afterEach(async () => {
   Mock.reset()
 
   if (current) {
-    await User.remove(current)
-
+    User.remove(current)
     current = null
   }
 })
@@ -34,9 +41,7 @@ describe('model', () => {
     expect(current.name).toBe(data.name)
   })
 
-  test('mocked models can be created', async () => {
-    expect.assertions(3)
-
+  test('mocked models can be created', () => {
     const mock = Mock.create(data)
 
     expect(typeof mock.id).toBe('string')
@@ -56,9 +61,7 @@ describe('model', () => {
     expect(users[0].name).toBe(data.name)
   })
 
-  test('mocked models can be retrieved', async () => {
-    expect.assertions(4)
-
+  test('mocked models can be retrieved', () => {
     Mock.create(data)
     const mocks = Mock.all()
 
@@ -84,9 +87,7 @@ describe('model', () => {
     await User.remove(parent)
   })
 
-  test('returns the mocked id if one of the attribute is a ref', async () => {
-    expect.assertions(1)
-
+  test('returns the mocked id if one of the attribute is a ref', () => {
     const parent = Mock.create(data)
 
     const mockData = {
@@ -113,9 +114,7 @@ describe('model', () => {
     current = null
   })
 
-  test('mocked model can be removed', async () => {
-    expect.assertions(2)
-
+  test('mocked model can be removed', () => {
     const mock = Mock.create(data)
     expect(mock.email).toBe(data.email)
 
@@ -134,9 +133,7 @@ describe('model', () => {
     expect(response).toStrictEqual(current)
   })
 
-  test('one mocked model can be found', async () => {
-    expect.assertions(1)
-
+  test('one mocked model can be found', () => {
     const mock = Mock.create(data)
 
     const response = Mock.find(mock.id)
@@ -154,9 +151,7 @@ describe('model', () => {
     expect(response).toStrictEqual([current])
   })
 
-  test('one mocked model can be found by any value', async () => {
-    expect.assertions(1)
-
+  test('one mocked model can be found by any value', () => {
     const mock = Mock.create(data)
 
     const response = Mock.where(['email', mock.email])
@@ -164,30 +159,77 @@ describe('model', () => {
     expect(response).toStrictEqual([mock])
   })
 
-  test('login', async () => {
-    expect.assertions(1)
+  test('login is only possible for existing users', async () => {
+    expect.assertions(4)
+
+    try {
+      await User.login()
+    } catch (e) {
+      // console.error(e)
+      expect(e.message).toBe('invalid login data')
+    }
+
+    try {
+      await User.login(data)
+    } catch (e) {
+      // console.error(e)
+      expect(e.message).toBe('authentication failed')
+    }
 
     current = await User.create(data)
+
+    try {
+      await User.login({
+        ...data,
+        password: 'wrong_password',
+      })
+    } catch (e) {
+      // console.error(e)
+      expect(e.message).toBe('authentication failed')
+    }
+
     const secret = await User.login(data)
 
     expect(typeof secret).toBe('string')
   })
 
-  test('mock login', async () => {
-    expect.assertions(1)
+  test('mock login is only possible for existing users', () => {
+    expect(() => {
+      Mock.login()
+    }).toThrowError('invalid login data')
+
+    expect(() => {
+      Mock.login(data)
+    }).toThrowError('authentication failed')
 
     Mock.create(data)
+
+    expect(() => {
+      Mock.login({
+        ...data,
+        password: 'wrong_password',
+      })
+    }).toThrowError('authentication failed')
+
     const secret = Mock.login(data)
 
     expect(typeof secret).toBe('string')
   })
 
   test('auth user can only be retrieved when logged in', async () => {
-    expect.assertions(2)
+    expect.assertions(3)
 
     current = await User.create(data)
+
     try {
       await User.bySecret()
+    } catch (e) {
+      // console.error(e)
+      expect(e.message).toBe('invalid auth token')
+    }
+
+    try {
+      await User.bySecret('wrong_secret')
     } catch (e) {
       // console.error(e)
       expect(e.message).toBe('unauthorized')
@@ -199,20 +241,68 @@ describe('model', () => {
     expect(loggedIn).toStrictEqual(current)
   })
 
-  test('mocked auth user can only be retrieved when logged in', async () => {
-    expect.assertions(2)
-
+  test('mocked auth user can only be retrieved when logged in', () => {
     const mock = Mock.create(data)
+
+    expect(() => {
+      Mock.bySecret()
+    }).toThrowError('invalid auth token')
+
+    expect(() => {
+      Mock.bySecret('wrong_secret')
+    }).toThrowError('unauthorized')
+
+    const secret = Mock.login(data)
+    const loggedIn = Mock.bySecret(secret)
+
+    expect(loggedIn).toStrictEqual(mock)
+  })
+
+  test('can only log out when logged in and the secret is correct', async () => {
+    expect.assertions(3)
+
+    current = await User.create(data)
+
     try {
-      Mock.bySecret('')
+      await User.logout()
+    } catch (e) {
+      // console.error(e)
+      expect(e.message).toBe('invalid auth token')
+    }
+
+    try {
+      await User.logout('wrong_secret')
+    } catch (e) {
+      // console.error(e)
+      expect(e.message).toBe('unauthorized')
+    }
+
+    const secret = await User.login(data)
+    const resp = await User.logout(secret)
+
+    expect(resp).toBe(true)
+  })
+
+  test('can only log out when logged in and the secret is correct', () => {
+    Mock.create(data)
+
+    try {
+      Mock.logout()
+    } catch (e) {
+      // console.error(e)
+      expect(e.message).toBe('invalid auth token')
+    }
+
+    try {
+      Mock.logout('wrong_secret')
     } catch (e) {
       // console.error(e)
       expect(e.message).toBe('unauthorized')
     }
 
     const secret = Mock.login(data)
-    const loggedIn = Mock.bySecret(secret)
+    const resp = Mock.logout(secret)
 
-    expect(loggedIn).toStrictEqual(mock)
+    expect(resp).toBe(true)
   })
 })
