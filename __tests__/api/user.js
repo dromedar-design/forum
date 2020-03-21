@@ -18,7 +18,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await User.remove(u)
+  User.remove(u)
   db.server.close()
 })
 
@@ -26,8 +26,8 @@ describe('user', () => {
   test('returns 401 without wrong credentials', async () => {
     const { res, error } = await get(db.url)
 
-    expect(error).toBe('missing auth token')
     expect(res.status).toBe(401)
+    expect(error).toBe('missing auth token')
   })
 
   test('does not log in with wrong secret', async () => {
@@ -35,8 +35,8 @@ describe('user', () => {
       secret: 'wrong_secret',
     })
 
-    expect(error).toBe('unauthorized')
     expect(res.status).toBe(401)
+    expect(error).toBe('unauthorized')
   })
 
   test('logs in succesfully only with correct secret', async () => {

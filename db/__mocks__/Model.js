@@ -1,25 +1,42 @@
 let DB = []
 
-const cleanDB = () => DB.map(({ password, secret, ...data }) => data)
+const cleanDB = () =>
+  DB.map(({ password, secret, ...data }) => {
+    const attrs = {}
+
+    for (const key in data) {
+      if (0 === key.indexOf('_')) {
+        continue
+      }
+
+      attrs[key] = data[key]
+    }
+
+    return attrs
+  })
 
 const randomString = () => String(Math.round(Math.random() * 999999999))
+
+const transformData = data => {
+  const attrs = {}
+
+  for (const key in data) {
+    if (typeof data[key] === 'string' && data[key].indexOf('@ref=') !== -1) {
+      attrs[key] = data[key].replace('@ref=', '')
+    } else {
+      attrs[key] = data[key]
+    }
+  }
+
+  return attrs
+}
 
 const Model = {
   reset: () => (DB = []),
   create: data => {
-    const attrs = {}
-
-    for (const key in data) {
-      if (typeof data[key] === 'string' && data[key].indexOf('@ref=') !== -1) {
-        attrs[key] = data[key].replace('@ref=', '')
-      } else {
-        attrs[key] = data[key]
-      }
-    }
-
     const item = {
       id: randomString(),
-      ...attrs,
+      ...transformData(data),
     }
 
     DB.push(item)
@@ -32,8 +49,23 @@ const Model = {
     DB = DB.filter(item => item.id !== data.id)
     return true
   },
-  where: (key, value) => cleanDB().filter(item => item[key] === value),
-  find: id => cleanDB().find(item => item.id === id),
+  where: ([key, value]) => {
+    const data = {}
+    data[key] = value
+    return cleanDB().filter(item => item[key] === transformData(data)[key])
+  },
+  find: id => {
+    if (undefined === id) {
+      throw new Error('missing comment id')
+    }
+
+    const item = cleanDB().find(item => item.id === id)
+    if (undefined === item) {
+      throw new Error('invalid argument')
+    }
+
+    return item
+  },
   login: data => {
     if (!data || !data.password || !data.email) {
       throw new Error('invalid login data')
@@ -85,6 +117,23 @@ const Model = {
 
     DB = DB.filter(i => i.id !== item.id)
     return true
+  },
+  update: ({ id, ...data }) => {
+    if (undefined === id) {
+      throw new Error('missing comment id')
+    }
+
+    const item = DB.find(i => i.id === id)
+    if (undefined === item) {
+      throw new Error('invalid argument')
+    }
+
+    DB = DB.map(i => {
+      if (item.id !== i.id) return i
+      return { ...item, ...data }
+    })
+
+    return cleanDB().find(i => i.id === id)
   },
 }
 

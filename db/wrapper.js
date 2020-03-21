@@ -1,8 +1,8 @@
 export default async (req, res, logic) => {
   try {
-    const response = await logic(req, res)
+    const { code = 200, ...response } = await logic(req, res)
 
-    res.status(200).json(response)
+    res.status(code).json(response)
   } catch (e) {
     // console.error(e)
     let status = 400

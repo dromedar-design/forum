@@ -19,16 +19,16 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await User.remove(u)
+  User.remove(u)
   db.server.close()
 })
 
-describe('user', () => {
+describe('user logout', () => {
   test('needs a secret to log out', async () => {
     const { res, error } = await get(db.url)
 
-    expect(error).toBe('missing auth token')
     expect(res.status).toBe(401)
+    expect(error).toBe('missing auth token')
   })
 
   test('needs a valid secret to log out', async () => {
@@ -36,11 +36,11 @@ describe('user', () => {
       secret: 'wrong_secret',
     })
 
-    expect(error).toBe('unauthorized')
     expect(res.status).toBe(401)
+    expect(error).toBe('unauthorized')
   })
 
-  test('logs in succesfully only with correct secret', async () => {
+  test('logs in succesfully with correct secret', async () => {
     const { res } = await get(db.url, { secret })
 
     expect(res.status).toBe(200)

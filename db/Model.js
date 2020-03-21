@@ -41,7 +41,9 @@ const transformItem = response => {
   const data = {}
 
   for (const key in response.data) {
-    data[key] = transformValue(response.data[key])
+    if (0 !== key.indexOf('_')) {
+      data[key] = transformValue(response.data[key])
+    }
   }
 
   return {
@@ -104,6 +106,11 @@ const findRaw = ({ client, collection, id }) => {
 
 const find = async props => transformItem(await findRaw(props))
 
+const updateRaw = ({ client, collection, data }) =>
+  client.query(q.Update(ref({ collection, data }), { data }))
+
+const update = async props => transformItem(await updateRaw(props))
+
 // = = = = =
 // = = = = =
 // = = = = =
@@ -161,6 +168,7 @@ const Model = ({ secret, auth, ...config }) => {
     where: data => where({ ...config, data }),
     find: id => find({ ...config, id }),
     ref: data => ref({ ...config, data }),
+    update: data => update({ ...config, data }),
   }
 
   if (auth) {

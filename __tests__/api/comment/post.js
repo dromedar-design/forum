@@ -22,23 +22,23 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await User.remove(u)
+  User.remove(u)
   db.server.close()
 })
 
-describe('register', () => {
+describe('create comment', () => {
   test('responds 401 to missing user', async () => {
     const { res, error } = await post(db.url)
 
-    expect(error).toBe('missing auth token')
     expect(res.status).toBe(401)
+    expect(error).toBe('missing auth token')
   })
 
   test('responds 400 to invalid data', async () => {
     const { res, error } = await post(`${db.url}?secret=${secret}`)
 
-    expect(error).toBe('missing comment data')
     expect(res.status).toBe(400)
+    expect(error).toBe('missing comment data')
   })
 
   test('creates comment when the data is correct', async () => {
@@ -47,11 +47,11 @@ describe('register', () => {
       commentData
     )
 
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(201)
     expect(comment.text).toBe(commentData.text)
     expect(comment.name).toBe(commentData.name)
 
-    await Comment.remove(comment)
+    Comment.remove(comment)
   })
 
   test('creates comment with parent', async () => {
@@ -65,12 +65,12 @@ describe('register', () => {
       ...commentData,
     })
 
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(201)
     expect(comment.text).toBe(commentData.text)
     expect(comment.name).toBe(commentData.name)
     expect(comment.parent).toBe(parent.id)
 
-    await Comment.remove(parent)
-    await Comment.remove(comment)
+    Comment.remove(parent)
+    Comment.remove(comment)
   })
 })

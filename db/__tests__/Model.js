@@ -1,15 +1,9 @@
 import faker from 'faker'
-import { Comment, User } from '../Model'
+import { User } from '../Model'
 import { User as Mock } from '../__mocks__/Model'
 
 let data,
   current = null
-
-beforeAll(async () => {
-  // Make sure that the test database is empty
-  ;(await User.all()).forEach(x => User.remove(x))
-  ;(await Comment.all()).forEach(x => Comment.remove(x))
-})
 
 beforeEach(() => {
   data = {
@@ -20,12 +14,12 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  Mock.reset()
-
   if (current) {
     User.remove(current)
     current = null
   }
+
+  Mock.reset()
 })
 
 describe('model', () => {
@@ -82,7 +76,7 @@ describe('model', () => {
 
     expect(current.parent).toBe(parent.id)
 
-    await User.remove(parent)
+    User.remove(parent)
   })
 
   test('returns the mocked id if one of the attribute is a ref', () => {
@@ -302,5 +296,47 @@ describe('model', () => {
     const resp = Mock.logout(secret)
 
     expect(resp).toBe(true)
+  })
+
+  test('models can be updated', async () => {
+    expect.assertions(4)
+
+    current = await User.create(data)
+
+    const newData = {
+      name: faker.name.findName(),
+      newField: faker.lorem.text(),
+      _hidden: faker.lorem.text(),
+    }
+
+    const updated = await User.update({
+      ...current,
+      ...newData,
+    })
+
+    expect(updated.email).toBe(data.email)
+    expect(updated.name).toBe(newData.name)
+    expect(updated.newField).toBe(newData.newField)
+    expect(typeof updated._hidden).toBe('undefined')
+  })
+
+  test('mocked models can be updated', () => {
+    const mock = Mock.create(data)
+
+    const newData = {
+      name: faker.name.findName(),
+      newField: faker.lorem.text(),
+      _hidden: faker.lorem.text(),
+    }
+
+    const updated = Mock.update({
+      ...mock,
+      ...newData,
+    })
+
+    expect(updated.email).toBe(data.email)
+    expect(updated.name).toBe(newData.name)
+    expect(updated.newField).toBe(newData.newField)
+    expect(typeof updated._hidden).toBe('undefined')
   })
 })

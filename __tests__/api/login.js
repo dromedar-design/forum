@@ -20,19 +20,19 @@ afterAll(async () => {
   db.server.close()
 })
 
-describe('login', () => {
+describe('login user', () => {
   test('returns 400 with no credentials', async () => {
     const { res, error } = await post(db.url)
 
-    expect(error).toBe('missing login data')
     expect(res.status).toBe(400)
+    expect(error).toBe('missing login data')
   })
 
   test('returns 401 with wrong credentials', async () => {
     const { res, error } = await post(db.url, userData)
 
-    expect(error).toBe('authentication failed')
     expect(res.status).toBe(401)
+    expect(error).toBe('authentication failed')
   })
 
   test('logs in succesfully with correct credentials', async () => {
@@ -43,6 +43,6 @@ describe('login', () => {
     expect(res.status).toBe(200)
     expect(user.email).toBe(userData.email)
 
-    await User.remove(user)
+    User.remove(user)
   })
 })

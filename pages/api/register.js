@@ -11,5 +11,5 @@ export default async (req, res) =>
 
     const user = await User.create({ email, password, name })
 
-    return { user }
+    return { code: 201, user }
   })

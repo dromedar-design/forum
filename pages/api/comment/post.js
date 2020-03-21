@@ -19,5 +19,5 @@ export default async (req, res) =>
       parent: req.body.parent ? Comment.ref({ id: req.body.parent }) : null,
     })
 
-    return { comment }
+    return { code: 201, comment }
   })
