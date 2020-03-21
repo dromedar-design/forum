@@ -1,9 +1,10 @@
 import faker from 'faker'
-import { remove as removeComment } from '../../../db/comment'
-import { create, login, remove as removeUser } from '../../../db/user'
+import { Comment, User } from '../../../db/Model'
 import handler from '../../../pages/api/comment/post'
 import { post } from '../../../utils/http'
 import { testServer } from '../../../utils/testing'
+
+jest.mock('../../../db/Model')
 
 let db, u, secret
 const userData = {
@@ -16,13 +17,12 @@ const commentData = {
 
 beforeAll(async () => {
   db = await testServer(handler)
-  const resp = await create(userData)
-  u = resp.user
-  secret = await login(userData)
+  u = await User.create(userData)
+  secret = await User.login(userData)
 })
 
 afterAll(async () => {
-  await removeUser(u)
+  await User.remove(u)
   db.server.close()
 })
 
@@ -51,7 +51,7 @@ describe('register', () => {
     expect(comment.text).toBe(commentData.text)
     expect(comment.name).toBe(commentData.name)
 
-    await removeComment(comment)
+    await Comment.remove(comment)
   })
 
   test('creates comment with parent', async () => {
@@ -70,7 +70,7 @@ describe('register', () => {
     expect(comment.name).toBe(commentData.name)
     expect(comment.parent).toBe(parent.id)
 
-    await removeComment(parent)
-    await removeComment(comment)
+    await Comment.remove(parent)
+    await Comment.remove(comment)
   })
 })

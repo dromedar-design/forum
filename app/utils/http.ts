@@ -1,8 +1,27 @@
 import fetch from 'isomorphic-unfetch'
-import { User } from '../db/user'
 
 if (process.env.NODE_ENV === 'test') {
   require('dotenv').config()
+}
+
+interface BaseUser {
+  email: string
+  name?: string
+}
+
+export interface RawUser extends BaseUser {
+  password: string
+}
+
+export interface User extends BaseUser {
+  id: number
+}
+
+interface faunaResponse {
+  ref: {
+    id: number
+  }
+  data: BaseUser
 }
 
 const BASEURL = process.env.BASEURL + '/api'

@@ -4,13 +4,13 @@ const cleanDB = () => DB.map(({ password, secret, ...data }) => data)
 
 const randomString = () => String(Math.round(Math.random() * 999999999))
 
-export const User = {
+const Model = {
   reset: () => (DB = []),
   create: data => {
     const attrs = {}
 
     for (const key in data) {
-      if (data[key].indexOf('@ref=') !== -1) {
+      if (typeof data[key] === 'string' && data[key].indexOf('@ref=') !== -1) {
         attrs[key] = data[key].replace('@ref=', '')
       } else {
         attrs[key] = data[key]
@@ -87,3 +87,6 @@ export const User = {
     return true
   },
 }
+
+export const User = Model
+export const Comment = Model

@@ -78,7 +78,7 @@ describe('model', () => {
 
     current = await User.create({
       ...data,
-      email: 'x@y.z',
+      email: faker.internet.email(),
       parent: User.ref(parent),
     })
 
@@ -92,7 +92,7 @@ describe('model', () => {
 
     const mockData = {
       ...data,
-      email: 'x@y.z',
+      email: faker.internet.email(),
       parent: Mock.ref(parent),
     }
     const mock = Mock.create(mockData)
