@@ -12,5 +12,19 @@
         ["@babel/env", { "targets": { "node": "current" } }]
       ]
     }
-  }
+  },
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "root": ["./"],
+        "alias": {
+          "@db": "./db",
+          "@utils": "./utils",
+          "@pages": "./pages",
+          "@components": "./components"
+        }
+      }
+    ]
+  ]
 }

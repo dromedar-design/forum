@@ -1,6 +1,6 @@
+import useAuth from '@utils/useAuth'
 import Router from 'next/router'
 import { useEffect, useState } from 'react'
-import useAuth from '../utils/useAuth'
 
 const Register = () => {
   const { register, isAuthenticated } = useAuth()

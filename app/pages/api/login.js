@@ -1,6 +1,6 @@
-import { setCookie } from '../../db/helpers'
-import { User } from '../../db/Model'
-import wrapper from '../../db/wrapper'
+import { setCookie } from '@db/helpers'
+import { User } from '@db/Model'
+import wrapper from '@db/wrapper'
 
 export default async (req, res) =>
   wrapper(req, res, async (req, res) => {

@@ -1,5 +1,5 @@
+import { serverClient } from '@utils/fauna'
 import { query as q } from 'faunadb'
-import { serverClient } from '../../../../utils/fauna'
 
 export default async (req, res) => {
   const ref = q.Ref(q.Collection('comments'), req.query.id)

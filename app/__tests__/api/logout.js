@@ -1,10 +1,10 @@
+import { User } from '@db/Model'
+import handler from '@pages/api/logout'
+import { get } from '@utils/http'
+import { testServer } from '@utils/testing'
 import faker from 'faker'
-import { User } from '../../db/Model'
-import handler from '../../pages/api/logout'
-import { get } from '../../utils/http'
-import { testServer } from '../../utils/testing'
 
-jest.mock('../../db/Model')
+jest.mock('@db/Model')
 
 let db, u, secret
 const userData = {

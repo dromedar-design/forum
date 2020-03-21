@@ -11,5 +11,17 @@ module.exports = {
     'db/**/*.(js|ts)',
     'pages/**/*.(js|ts)',
     'utils/**/*.(js|ts)',
+    'components/**/*.(js|ts)',
   ],
+  moduleNameMapper: {
+    '^@db(.*)$': '<rootDir>/db$1',
+    '^@utils(.*)$': '<rootDir>/utils$1',
+    '^@pages(.*)$': '<rootDir>/pages$1',
+    '^@components(.*)$': '<rootDir>/components$1',
+  },
+  globals: {
+    'ts-jest': {
+      tsConfig: 'tsconfig.jest.json',
+    },
+  },
 }

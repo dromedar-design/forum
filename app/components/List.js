@@ -1,6 +1,6 @@
+import useData from '@utils/useData'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
-import useData from '../utils/useData'
 
 const List = ({ side, ...props }) => {
   const { post, getSide, rightData, setSelected } = useData()

@@ -1,6 +1,6 @@
+import useAuth from '@utils/useAuth'
 import Link from 'next/link'
 import Router from 'next/router'
-import useAuth from '../utils/useAuth'
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth()

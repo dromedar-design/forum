@@ -1,10 +1,10 @@
+import { Comment, User } from '@db/Model'
+import handler from '@pages/api/comment/post'
+import { post } from '@utils/http'
+import { testServer } from '@utils/testing'
 import faker from 'faker'
-import { Comment, User } from '../../../db/Model'
-import handler from '../../../pages/api/comment/post'
-import { post } from '../../../utils/http'
-import { testServer } from '../../../utils/testing'
 
-jest.mock('../../../db/Model')
+jest.mock('@db/Model')
 
 let db, u, secret
 const userData = {

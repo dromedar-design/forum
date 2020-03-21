@@ -1,6 +1,8 @@
 import cookie from 'cookie'
 
-require('dotenv').config()
+if (process.env.NODE_ENV === 'test') {
+  require('dotenv').config()
+}
 
 const COOKIE_NAME = 'dd_secret'
 

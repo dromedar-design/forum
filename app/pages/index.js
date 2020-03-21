@@ -1,7 +1,7 @@
+import Body from '@components/Body'
+import { get } from '@utils/http'
+import useData from '@utils/useData'
 import { useEffect } from 'react'
-import Body from '../components/Body'
-import { get } from '../utils/http'
-import useData from '../utils/useData'
 
 const QUERY = '/comment/get'
 

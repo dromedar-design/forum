@@ -1,6 +1,8 @@
 import { Client, query as q } from 'faunadb'
 
-require('dotenv').config()
+if (process.env.NODE_ENV === 'test') {
+  require('dotenv').config()
+}
 
 const SERVER_SECRET =
   process.env.NODE_ENV === 'development'

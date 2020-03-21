@@ -1,9 +1,9 @@
+import useAuth from '@utils/useAuth'
+import useData from '@utils/useData'
 import { motion } from 'framer-motion'
 import { useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import TextareaAutosize from 'react-textarea-autosize'
-import useAuth from '../utils/useAuth'
-import useData from '../utils/useData'
 
 const Input = () => {
   const [text, setText] = useState('')

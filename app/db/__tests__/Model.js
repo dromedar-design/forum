@@ -1,16 +1,14 @@
 import faker from 'faker'
-import { User } from '../Model'
+import { Comment, User } from '../Model'
 import { User as Mock } from '../__mocks__/Model'
 
 let data,
   current = null
 
 beforeAll(async () => {
-  const users = await User.all()
-
-  users.forEach(user => {
-    User.remove(user)
-  })
+  // Make sure that the test database is empty
+  ;(await User.all()).forEach(x => User.remove(x))
+  ;(await Comment.all()).forEach(x => Comment.remove(x))
 })
 
 beforeEach(() => {

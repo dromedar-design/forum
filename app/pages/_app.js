@@ -1,12 +1,12 @@
+import Layout from '@components/Layout'
+import { getSecretFromRequest } from '@db/helpers'
+import { User } from '@db/Model'
+import { get } from '@utils/http'
+import { AuthProvider } from '@utils/useAuth'
+import { DataProvider } from '@utils/useData'
 import App from 'next/app'
 import { SWRConfig } from 'swr'
-import Layout from '../components/Layout'
 import '../css/tailwind.css'
-import { getSecretFromRequest } from '../db/helpers'
-import { User } from '../db/Model'
-import { get } from '../utils/http'
-import { AuthProvider } from '../utils/useAuth'
-import { DataProvider } from '../utils/useData'
 
 const MyApp = ({ Component, pageProps, user }) => {
   return (

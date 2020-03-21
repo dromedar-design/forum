@@ -1,5 +1,5 @@
+import { RawUser, User } from '@utils/http'
 import React, { ReactNode, useContext, useEffect, useReducer } from 'react'
-import { RawUser, User } from '../utils/http'
 import { get, post } from './http'
 
 interface Action {
