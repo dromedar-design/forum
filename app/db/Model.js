@@ -2,7 +2,7 @@ import { Client, query as q } from 'faunadb'
 
 require('dotenv').config()
 
-const secret =
+const SERVER_SECRET =
   process.env.NODE_ENV === 'development'
     ? process.env.FAUNA_SERVER_KEY
     : process.env.FAUNA_TEST_KEY
@@ -173,11 +173,11 @@ export const Factory = options => {
 
 export const User = Factory({
   name: 'user',
-  secret,
+  secret: SERVER_SECRET,
   auth: true,
 })
 
 export const Comment = Factory({
   name: 'comment',
-  secret,
+  secret: SERVER_SECRET,
 })

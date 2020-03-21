@@ -23,8 +23,6 @@ afterAll(async () => {
 
 describe('user', () => {
   test('returns 401 without wrong credentials', async () => {
-    expect.assertions(2)
-
     const { res, error } = await get(db.url)
 
     expect(error).toBe('missing auth secret')
@@ -32,8 +30,6 @@ describe('user', () => {
   })
 
   test('does not log in with wrong secret', async () => {
-    expect.assertions(2)
-
     const { res, error } = await get(db.url, {
       secret: 'wrong_secret',
     })
@@ -43,8 +39,6 @@ describe('user', () => {
   })
 
   test('logs in succesfully only with correct secret', async () => {
-    expect.assertions(2)
-
     const secret = await login(userData)
     const { res, user } = await get(db.url, { secret })
 

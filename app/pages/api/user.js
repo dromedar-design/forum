@@ -1,25 +1,10 @@
-import { get, getFromCookie } from '../../db/user'
+import { getSecretFromRequest } from '../../db/helpers'
+import { User } from '../../db/Model'
+import wrapper from '../../db/wrapper'
 
-export default async (req, res) => {
-  try {
-    const secret = req.query.secret || getFromCookie(req)
+export default async (req, res) =>
+  wrapper(req, res, async req => {
+    const secret = getSecretFromRequest(req)
 
-    if (!secret) {
-      throw new Error('missing auth secret')
-    }
-
-    res.status(200).json(await get(secret))
-  } catch (e) {
-    let status = 400
-
-    if (
-      e.message === 'unauthorized' ||
-      e.message === 'authentication failed' ||
-      e.message === 'missing auth secret'
-    ) {
-      status = 401
-    }
-
-    res.status(status).json({ error: e.message })
-  }
-}
+    return { user: await User.bySecret(secret) }
+  })

@@ -28,8 +28,6 @@ afterAll(async () => {
 
 describe('register', () => {
   test('responds 401 to missing user', async () => {
-    expect.assertions(2)
-
     const { res, error } = await post(db.url)
 
     expect(error).toBe('missing auth secret')
@@ -37,8 +35,6 @@ describe('register', () => {
   })
 
   test('responds 400 to invalid data', async () => {
-    expect.assertions(2)
-
     const { res, error } = await post(`${db.url}?secret=${secret}`)
 
     expect(error).toBe('missing comment data')
@@ -46,8 +42,6 @@ describe('register', () => {
   })
 
   test('creates comment when the data is correct', async () => {
-    expect.assertions(3)
-
     const { res, comment } = await post(
       `${db.url}?secret=${secret}`,
       commentData
@@ -61,8 +55,6 @@ describe('register', () => {
   })
 
   test('creates comment with parent', async () => {
-    expect.assertions(4)
-
     const { comment: parent } = await post(
       `${db.url}?secret=${secret}`,
       commentData

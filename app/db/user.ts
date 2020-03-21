@@ -1,12 +1,6 @@
-import cookie from 'cookie'
 import { query as q } from 'faunadb'
-import { NextApiRequest, NextApiResponse } from 'next-server/dist/lib/utils'
-import {
-  faunaClient,
-  FAUNA_SECRET_COOKIE,
-  serializeFaunaCookie,
-  serverClient,
-} from '../utils/fauna'
+import { NextApiResponse } from 'next-server/dist/lib/utils'
+import { faunaClient, serializeFaunaCookie, serverClient } from '../utils/fauna'
 
 const COLLECTION = 'users'
 const INDEX = 'users_by_email'
@@ -49,11 +43,6 @@ const withTransform = async (func: (arg: any) => any, data: any) => {
 export const setCookie = (secret: string, res: NextApiResponse) => {
   const cookieSerialized = serializeFaunaCookie(secret)
   res.setHeader('Set-Cookie', cookieSerialized)
-}
-
-export const getFromCookie = (req: NextApiRequest): string => {
-  const cookies = cookie.parse(req.headers.cookie ?? '')
-  return cookies[FAUNA_SECRET_COOKIE]
 }
 
 export const createRaw = ({
