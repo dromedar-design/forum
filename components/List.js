@@ -1,12 +1,15 @@
 import useData from '@utils/useData'
 import Link from 'next/link'
+import React from 'react'
 import ReactMarkdown from 'react-markdown'
 
 const List = ({ side, ...props }) => {
   const { post, getSide, rightData, setSelected } = useData()
   const data = getSide(side)
 
-  return !data || !data.items ? (
+  // console.log(side, data)
+
+  return !data || !data.items || 0 === data.items.length ? (
     <p>Loading ...</p>
   ) : (
     <ul {...props}>
