@@ -1,6 +1,7 @@
 import useAuth from '@utils/useAuth'
 import Link from 'next/link'
 import Router from 'next/router'
+import React from 'react'
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth()
@@ -36,8 +37,8 @@ const Header = () => {
             >
               Logout
             </button>
-            {user.name}
-            {user.email}
+            <span>{user.name}</span>
+            <span>{user.email}</span>
           </>
         )}
       </nav>
