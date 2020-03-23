@@ -17,6 +17,7 @@ export default async (req, res) =>
       text: req.body.text,
       user: User.ref(user),
       parent: req.body.parent ? Comment.ref({ id: req.body.parent }) : null,
+      deleted: false,
     })
 
     return { code: 201, comment }

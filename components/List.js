@@ -24,7 +24,9 @@ const List = ({ side, ...props }) => {
             }
           >
             <span style={{ marginRight: 10 }}>
-              <ReactMarkdown source={comment.text} />
+              <ReactMarkdown
+                source={comment.deleted ? '*törölve*' : comment.text}
+              />
             </span>
             {comment.user && (
               <small style={{ marginRight: 10 }}>by {comment.user.name}</small>
@@ -32,27 +34,31 @@ const List = ({ side, ...props }) => {
             <Link href="/p/[id]" as={`/p/${comment.id}`}>
               <a style={{ marginRight: 10 }}>Link</a>
             </Link>
-            <button onClick={() => setSelected(comment)}>Válasz</button>
             <span>[{comment.commentCount}]</span>
-            <button
-              onClick={() => {
-                post('/comment/delete', {
-                  ref: comment.id,
-                })
-              }}
-            >
-              DEL
-            </button>
-            <button
-              onClick={() => {
-                post('/like/post', {
-                  comment: comment.id,
-                  value: 'UP',
-                })
-              }}
-            >
-              LIKE
-            </button>
+            {!comment.deleted && (
+              <span>
+                <button onClick={() => setSelected(comment)}>Válasz</button>
+                <button
+                  onClick={() => {
+                    post('/comment/delete', {
+                      id: comment.id,
+                    })
+                  }}
+                >
+                  DEL
+                </button>
+                <button
+                  onClick={() => {
+                    post('/like/post', {
+                      comment: comment.id,
+                      value: 'UP',
+                    })
+                  }}
+                >
+                  LIKE
+                </button>
+              </span>
+            )}
           </li>
         )
       })}
