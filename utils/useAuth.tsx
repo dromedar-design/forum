@@ -31,6 +31,7 @@ export const AuthProvider = ({
   children: ReactNode
   initialUser: User | null
 }) => {
+  // console.log('initial user: ', initialUser)
   const [state, dispatch] = useReducer(reducer, {
     user: initialUser,
     current: initialUser ? 'IN' : 'OUT',
@@ -221,6 +222,7 @@ export default () => {
 
   return {
     user: state.user,
+    error: state.error,
     isLoading: state.current === 'LOADING',
     isAuthenticated: state.current === 'IN',
     register,

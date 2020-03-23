@@ -1,5 +1,5 @@
 import { User } from '@db/Model'
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { AuthProvider } from '@utils/useAuth'
 import faker from 'faker'
 import fetch from 'jest-fetch-mock'
@@ -12,15 +12,19 @@ beforeAll(() => {
   fetch.enableFetchMocks()
 })
 
+beforeEach(() => {
+  fetch.resetMocks()
+})
+
 test('shows logged out state by default', async () => {
-  render(
+  const { queryByText } = render(
     <AuthProvider initialUser={null}>
       <Header />
     </AuthProvider>
   )
 
-  expect(screen.queryByText('Logout')).toBeNull()
-  expect(screen.queryByText('Login')).not.toBeNull()
+  expect(queryByText('Logout')).toBeNull()
+  expect(queryByText('Login')).not.toBeNull()
 })
 
 test('shows user info when logged in', async () => {
@@ -32,13 +36,15 @@ test('shows user info when logged in', async () => {
   const user = await User.create(data)
   fetch.mockResponse(JSON.stringify({ user }))
 
-  render(
+  const { queryByText } = render(
     <AuthProvider initialUser={user}>
       <Header />
     </AuthProvider>
   )
 
-  expect(screen.queryByText('Login')).toBeNull()
-  expect(screen.queryByText('Logout')).not.toBeNull()
-  expect(screen.queryByText(data.email)).not.toBeNull()
+  expect(queryByText('Login')).toBeNull()
+  expect(queryByText('Logout')).not.toBeNull()
+  expect(queryByText(data.email)).not.toBeNull()
+
+  User.remove(user)
 })

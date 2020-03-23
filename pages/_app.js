@@ -1,6 +1,5 @@
 import Layout from '@components/Layout'
 import { getSecretFromRequest } from '@db/helpers'
-import { User } from '@db/Model'
 import { get } from '@utils/http'
 import { AuthProvider } from '@utils/useAuth'
 import { DataProvider } from '@utils/useData'
@@ -30,11 +29,10 @@ MyApp.getInitialProps = async appContext => {
 
     let user = null
 
-    try {
-      const secret = getSecretFromRequest(req)
-      user = User.bySecret(secret)
-    } catch (e) {
-      console.error(e)
+    const response = await get('/user')
+    console.log(response, getSecretFromRequest(req))
+    if (response.user) {
+      user = response.user
     }
 
     return {

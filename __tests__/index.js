@@ -54,4 +54,8 @@ test('renders the inital comments', async () => {
 
   const loading = await findAllByText('Loading ...')
   expect(loading.length).toBe(1)
+
+  comments.forEach(comment => {
+    Comment.remove(comment)
+  })
 })

@@ -4,7 +4,7 @@ import Router from 'next/router'
 import React from 'react'
 
 const Header = () => {
-  const { isAuthenticated, user, logout } = useAuth()
+  const { isAuthenticated, user, logout, error } = useAuth()
 
   return (
     <header>
@@ -14,6 +14,8 @@ const Header = () => {
       <Link href="/dashboard">
         <a>Dash</a>
       </Link>
+
+      {error && <div className="text-red-500">{error}</div>}
 
       <nav>
         {!isAuthenticated && (
