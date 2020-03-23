@@ -7,7 +7,7 @@ if (process.env.NODE_ENV === 'test') {
 const COOKIE_NAME = 'dd_secret'
 
 export const getSecretFromRequest = req => {
-  if (req.query.secret) {
+  if (req.query && req.query.secret) {
     return req.query.secret
   }
 

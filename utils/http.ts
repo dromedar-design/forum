@@ -50,7 +50,14 @@ const fetcher = ({ url, ...extra }: prepareOptions) =>
     ...extra,
   }).then(
     async (res: Response): Promise<CustomResponse> => {
-      const data = await res.json()
+      let data
+
+      try {
+        data = await res.json()
+      } catch (e) {
+        console.error(e)
+        data = {}
+      }
 
       return { res, ...data }
     }

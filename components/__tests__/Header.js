@@ -18,10 +18,11 @@ beforeEach(() => {
 
 test('shows logged out state by default', async () => {
   const { queryByText } = render(
-    <AuthProvider initialUser={null}>
+    <AuthProvider>
       <Header />
     </AuthProvider>
   )
+  fetch.mockResponse(JSON.stringify({}))
 
   expect(queryByText('Logout')).toBeNull()
   expect(queryByText('Login')).not.toBeNull()

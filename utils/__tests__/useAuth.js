@@ -19,6 +19,7 @@ test('user is null by default', async () => {
   const wrapper = ({ children }) => (
     <AuthProvider initialUser={null} children={children} />
   )
+  fetch.mockResponse(JSON.stringify({}))
 
   const { result } = renderHook(() => useAuth(), { wrapper })
 

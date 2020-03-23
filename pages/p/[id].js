@@ -42,8 +42,6 @@ Post.getInitialProps = async ctx => {
       .end()
   }
 
-  console.log('right', right)
-
   const leftQuery = right.current.parent
     ? QUERY + right.current.parent.id
     : '/comment/get'

@@ -7,8 +7,6 @@ const List = ({ side, ...props }) => {
   const { post, getSide, rightData, setSelected } = useData()
   const data = getSide(side)
 
-  // console.log(side, data)
-
   return !data || !data.items || 0 === data.items.length ? (
     <p>Loading ...</p>
   ) : (

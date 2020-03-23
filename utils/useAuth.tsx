@@ -26,7 +26,7 @@ const Context = React.createContext({
 
 export const AuthProvider = ({
   children,
-  initialUser,
+  initialUser = null,
 }: {
   children: ReactNode
   initialUser: User | null
@@ -118,8 +118,6 @@ export default () => {
   }, [])
 
   const checkUser = async () => {
-    if (!state.user) return
-
     const response = await get('/user')
 
     if (response.error) {
@@ -131,6 +129,7 @@ export default () => {
       })
     }
 
+    if (!response.user) return
     if (response.user === state.user) return
 
     if (response.user) {
