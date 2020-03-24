@@ -9,198 +9,149 @@ const SERVER_SECRET =
     ? process.env.FAUNA_SERVER_KEY
     : process.env.FAUNA_TEST_KEY
 
-// interface modelOptions {
-//   name?: string
-//   collection?: string
-//   index?: string
-//   data?: object
-//   secret?: string
-//   client?: Client
-// }
+class Model {
+  constructor({ secret, ...options }) {
+    if (!options.name) {
+      throw new Error('no name was provided')
+    }
+    if (!secret) {
+      throw new Error('no secret was provided')
+    }
 
-// interface itemResponse {
-//   ref: { id: number }
-//   data: object
-// }
+    this.client = new Client({ secret })
 
-// interface listResponse {
-//   data: object[]
-// }
-
-const transformValue = value => {
-  if (typeof value === 'object') {
-    if (value.hasOwnProperty('value')) {
-      return value.value.id
+    this.config = {
+      collection: `${options.name}s`,
+      index: `all_${options.name}s`,
+      ...options,
     }
   }
 
-  return value
-}
+  async transformValue(prop) {
+    if (typeof prop === 'object') {
+      if (prop.hasOwnProperty('value')) {
+        return await this.find(prop.value.id, prop.value.collection.value.id)
+      }
+    }
 
-const transformItem = response => {
-  const data = {}
+    return prop
+  }
 
-  for (const key in response.data) {
-    if (0 !== key.indexOf('_')) {
-      data[key] = transformValue(response.data[key])
+  async transformItem(response) {
+    const data = {}
+
+    for (const key in response.data) {
+      if (0 !== key.indexOf('_')) {
+        data[key] = await this.transformValue(response.data[key])
+      }
+    }
+
+    return {
+      id: response.ref.id,
+      ...data,
     }
   }
 
-  return {
-    id: response.ref.id,
-    ...data,
+  async transformList(response) {
+    return Promise.all(
+      response.data.map(item => {
+        return this.transformItem(item)
+      })
+    )
   }
-}
 
-const transformList = response => response.data.map(item => transformItem(item))
+  ref({ id, collection = this.config.collection }) {
+    return q.Ref(q.Collection(collection), id)
+  }
 
-const createRaw = ({ client, collection, data: { password, ...data } }) =>
-  client.query(
-    q.Create(q.Collection(collection), {
-      credentials: { password },
-      data,
+  async find(id, collection = this.config.collection) {
+    return this.transformItem(
+      await this.client.query(q.Get(this.ref({ id, collection })))
+    )
+  }
+
+  async create({ password, ...data }) {
+    return this.transformItem(
+      await this.client.query(
+        q.Create(q.Collection(this.config.collection), {
+          credentials: { password },
+          data,
+        })
+      )
+    )
+  }
+
+  async index({ index, value = undefined }) {
+    return await this.transformList(
+      await this.client.query(
+        q.Map(q.Paginate(q.Match(q.Index(index), value)), ref => q.Get(ref))
+      )
+    )
+  }
+
+  async all() {
+    return await this.index({ index: this.config.index })
+  }
+
+  remove(data) {
+    this.client.query(q.Delete(this.ref(data)))
+    return true
+  }
+
+  async where([key, value]) {
+    return await this.index({
+      index: `${this.config.collection}_by_${key}`,
+      value,
     })
-  )
-const create = async props => transformItem(await createRaw(props))
-
-const ref = ({ data, collection }) => q.Ref(q.Collection(collection), data.id)
-
-const index = ({ client, index, value }) =>
-  client.query(
-    q.Map(q.Paginate(q.Match(q.Index(index), value)), ref => q.Get(ref))
-  )
-
-const allRaw = props => index(props)
-
-const all = async props => transformList(await allRaw(props))
-
-const removeRaw = ({ client, ...props }) => {
-  client.query(q.Delete(ref(props)))
-  return true
-}
-
-const remove = props => removeRaw(props)
-
-const whereRaw = ({ client, collection, data }) => {
-  const list = `${collection}_by_${data[0]}`
-
-  return index({
-    client,
-    index: list,
-    value: data[1],
-  })
-}
-
-const where = async props => transformList(await whereRaw(props))
-
-const findRaw = ({ client, collection, id }) => {
-  const item = ref({
-    data: {
-      id,
-    },
-    collection,
-  })
-
-  return client.query(q.Get(item))
-}
-
-const find = async props => transformItem(await findRaw(props))
-
-const updateRaw = ({ client, collection, data }) =>
-  client.query(q.Update(ref({ collection, data }), { data }))
-
-const update = async props => transformItem(await updateRaw(props))
-
-// = = = = =
-// = = = = =
-// = = = = =
-
-const loginRaw = async ({ data, client, collection }) => {
-  if (!data || !data.password || !data.email) {
-    throw new Error('invalid login data')
   }
 
-  const list = `${collection}_by_email`
+  async update(data) {
+    return this.transformItem(
+      await this.client.query(q.Update(this.ref(data), { data }))
+    )
+  }
 
-  return client.query(
-    q.Login(q.Match(q.Index(list), data.email), {
-      password: data.password,
-    })
-  )
+  async login(data) {
+    if (!data || !data.email || !data.password) {
+      throw new Error('invalid login data')
+    }
+
+    const list = `${this.config.collection}_by_email`
+
+    const response = await this.client.query(
+      q.Login(q.Match(q.Index(list), data.email), {
+        password: data.password,
+      })
+    )
+
+    return response.secret
+  }
+
+  async bySecret(secret) {
+    if (!secret || typeof secret !== 'string') {
+      throw new Error('invalid auth token')
+    }
+
+    return this.transformItem(
+      await new Client({ secret }).query(q.Get(q.Identity()))
+    )
+  }
+
+  async logout(secret) {
+    if (!secret || typeof secret !== 'string') {
+      throw new Error('invalid auth token')
+    }
+
+    return await new Client({ secret }).query(q.Logout(false))
+  }
 }
 
-const login = async data => (await loginRaw(data)).secret
-
-const bySecretRaw = ({ secret }) => {
-  if (!secret || typeof secret !== 'string') {
-    throw new Error('invalid auth token')
-  }
-
-  return new Client({ secret }).query(q.Get(q.Identity()))
-}
-
-const bySecret = async data => transformItem(await bySecretRaw(data))
-
-const logout = ({ secret }) => {
-  if (!secret || typeof secret !== 'string') {
-    throw new Error('invalid auth token')
-  }
-
-  return new Client({ secret }).query(q.Logout(false))
-}
-
-// = = = = =
-// = = = = =
-// = = = = =
-
-const Model = ({ secret, auth, ...config }) => {
-  if (!secret) {
-    throw new Error('no secret was provided')
-  }
-
-  config.client = new Client({ secret })
-
-  let model = {
-    config,
-    create: data => create({ ...config, data }),
-    all: props => all({ ...config, ...props }),
-    remove: data => remove({ ...config, data }),
-    where: data => where({ ...config, data }),
-    find: id => find({ ...config, id }),
-    ref: data => ref({ ...config, data }),
-    update: data => update({ ...config, data }),
-  }
-
-  if (auth) {
-    model.login = data => login({ ...config, data })
-    model.bySecret = secret => bySecret({ ...config, secret })
-    model.logout = secret => logout({ ...config, secret })
-  }
-
-  return model
-}
-
-export const Factory = options => {
-  if (!options.name) {
-    throw new Error('no name was provided')
-  }
-
-  const config = {
-    collection: `${options.name}s`,
-    index: `all_${options.name}s`,
-    ...options,
-  }
-
-  return Model(config)
-}
-
-export const User = Factory({
+export const User = new Model({
   name: 'user',
   secret: SERVER_SECRET,
-  auth: true,
 })
 
-export const Comment = Factory({
+export const Comment = new Model({
   name: 'comment',
   secret: SERVER_SECRET,
 })

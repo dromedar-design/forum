@@ -12,13 +12,23 @@ export default async (req, res) =>
 
     const user = await User.bySecret(secret)
 
-    const comment = await Comment.create({
+    let comment = await Comment.create({
       createdAt: new Date().getTime(),
       text: req.body.text,
       user: User.ref(user),
       parent: req.body.parent ? Comment.ref({ id: req.body.parent }) : null,
       deleted: false,
+      commentCount: 0,
     })
+
+    if (comment.parent) {
+      const parent = await Comment.update({
+        id: comment.parent.id,
+        commentCount: comment.parent.commentCount + 1,
+      })
+
+      comment = { ...comment, parent }
+    }
 
     return { code: 201, comment }
   })

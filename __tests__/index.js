@@ -3,9 +3,16 @@ import Page from '@pages/index'
 import { render } from '@testing-library/react'
 import { DataProvider } from '@utils/useData'
 import faker from 'faker'
+import fetch from 'jest-fetch-mock'
 import React from 'react'
 
 jest.mock('@db/Model')
+
+beforeAll(() => {
+  // Mock user call
+  fetch.enableFetchMocks()
+  fetch.mockResponse(JSON.stringify({}))
+})
 
 const addComments = async number => {
   let comments = []

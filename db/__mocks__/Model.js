@@ -9,7 +9,12 @@ const cleanDB = () =>
         continue
       }
 
-      attrs[key] = data[key]
+      if (typeof data[key] === 'string' && data[key].indexOf('@ref=') === 0) {
+        const id = data[key].replace('@ref=', '')
+        attrs[key] = DB.find(item => item.id === id)
+      } else {
+        attrs[key] = data[key]
+      }
     }
 
     return attrs
@@ -17,32 +22,17 @@ const cleanDB = () =>
 
 const randomString = () => String(Math.round(Math.random() * 999999999))
 
-const transformData = data => {
-  const attrs = {}
-
-  for (const key in data) {
-    if (typeof data[key] === 'string' && data[key].indexOf('@ref=') !== -1) {
-      attrs[key] = data[key].replace('@ref=', '')
-    } else {
-      attrs[key] = data[key]
-    }
-  }
-
-  return attrs
-}
-
 const Model = {
   reset: () => (DB = []),
   create: data => {
     const item = {
       id: randomString(),
-      ...transformData(data),
+      ...data,
     }
 
     DB.push(item)
 
-    const { secret, password, ...secure } = item
-    return secure
+    return Model.find(item.id)
   },
   all: () => cleanDB(),
   remove: data => {
@@ -50,9 +40,8 @@ const Model = {
     return true
   },
   where: ([key, value]) => {
-    const data = {}
-    data[key] = value
-    return cleanDB().filter(item => item[key] === transformData(data)[key])
+    const items = DB.filter(item => item[key] === value)
+    return items.map(i => Model.find(i.id))
   },
   find: id => {
     if (undefined === id) {
@@ -133,7 +122,7 @@ const Model = {
       return { ...item, ...data }
     })
 
-    return cleanDB().find(i => i.id === id)
+    return Model.find(id)
   },
 }
 

@@ -8,21 +8,16 @@ import Header from '../Header'
 
 jest.mock('@db/Model')
 
-beforeAll(() => {
-  fetch.enableFetchMocks()
-})
-
-beforeEach(() => {
-  fetch.resetMocks()
-})
+beforeAll(() => fetch.enableFetchMocks())
+beforeEach(() => fetch.resetMocks())
 
 test('shows logged out state by default', async () => {
+  fetch.mockResponse(JSON.stringify({}))
   const { queryByText } = render(
     <AuthProvider>
       <Header />
     </AuthProvider>
   )
-  fetch.mockResponse(JSON.stringify({}))
 
   expect(queryByText('Logout')).toBeNull()
   expect(queryByText('Login')).not.toBeNull()

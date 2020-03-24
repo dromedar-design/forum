@@ -26,7 +26,7 @@ describe('get all comments', () => {
   })
 
   test('returns one comment', async () => {
-    const data = { text: faker.lorem.text() }
+    const data = { text: faker.lorem.sentence() }
 
     const comment = await Comment.create(data)
 
@@ -41,8 +41,8 @@ describe('get all comments', () => {
   })
 
   test('returns all comments', async () => {
-    const data1 = { text: faker.lorem.text() }
-    const data2 = { text: faker.lorem.text() }
+    const data1 = { text: faker.lorem.sentence() }
+    const data2 = { text: faker.lorem.sentence() }
 
     const comment1 = await Comment.create(data1)
     const comment2 = await Comment.create(data2)

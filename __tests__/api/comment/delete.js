@@ -1,5 +1,5 @@
 import { Comment } from '@db/Model'
-import handler from '@pages/api/comment/delete/[id]'
+import handler from '@pages/api/comment/delete'
 import { post } from '@utils/http'
 import { testServer } from '@utils/testing'
 import faker from 'faker'
@@ -34,7 +34,7 @@ describe('delete comment', () => {
   })
 
   test('succesfully removes comment', async () => {
-    const data = { text: faker.lorem.text() }
+    const data = { text: faker.lorem.sentence() }
 
     const comment = await Comment.create(data)
 

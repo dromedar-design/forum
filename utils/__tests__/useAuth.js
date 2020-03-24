@@ -7,13 +7,9 @@ import React from 'react'
 
 jest.mock('@db/Model')
 
-beforeAll(() => {
-  fetch.enableFetchMocks()
-})
+beforeAll(() => fetch.enableFetchMocks())
 
-beforeEach(() => {
-  fetch.resetMocks()
-})
+beforeEach(() => fetch.resetMocks())
 
 test('user is null by default', async () => {
   const wrapper = ({ children }) => (

@@ -34,7 +34,7 @@ describe('get comment by id', () => {
   })
 
   test('returns one comment with no children', async () => {
-    const data = { text: faker.lorem.text() }
+    const data = { text: faker.lorem.sentence() }
 
     const comment = await Comment.create(data)
 
@@ -51,8 +51,8 @@ describe('get comment by id', () => {
   })
 
   test('returns one comment with children', async () => {
-    const data1 = { text: faker.lorem.text() }
-    const data2 = { text: faker.lorem.text() }
+    const data1 = { text: faker.lorem.sentence() }
+    const data2 = { text: faker.lorem.sentence() }
 
     const comment1 = await Comment.create(data1)
     const comment2 = await Comment.create({
@@ -70,7 +70,7 @@ describe('get comment by id', () => {
     expect(items.length).toBe(1)
     expect(items[0].text).toBe(comment2.text)
     expect(items[0].text).toBe(data2.text)
-    expect(items[0].parent).toBe(comment1.id)
+    expect(items[0].parent.id).toBe(comment1.id)
 
     Comment.remove(comment1)
     Comment.remove(comment2)

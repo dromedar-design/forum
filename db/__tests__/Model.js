@@ -63,7 +63,7 @@ describe('model', () => {
     expect(mocks[0].name).toBe(data.name)
   })
 
-  test('returns the id if one of the attribute is a ref', async () => {
+  test('returns the model if one of the attribute is a ref', async () => {
     expect.assertions(1)
 
     const parent = await User.create(data)
@@ -74,12 +74,12 @@ describe('model', () => {
       parent: User.ref(parent),
     })
 
-    expect(current.parent).toBe(parent.id)
+    expect(current.parent.id).toBe(parent.id)
 
     User.remove(parent)
   })
 
-  test('returns the mocked id if one of the attribute is a ref', () => {
+  test('returns the mocked model if one of the attribute is a ref', () => {
     const parent = Mock.create(data)
 
     const mockData = {
@@ -89,7 +89,7 @@ describe('model', () => {
     }
     const mock = Mock.create(mockData)
 
-    expect(mock.parent).toBe(parent.id)
+    expect(mock.parent.id).toBe(parent.id)
   })
 
   test('model can be removed', async () => {
@@ -275,7 +275,7 @@ describe('model', () => {
     expect(resp).toBe(true)
   })
 
-  test('can only log out when logged in and the secret is correct', () => {
+  test('mock can only log out when logged in and the secret is correct', () => {
     Mock.create(data)
 
     try {
@@ -305,8 +305,8 @@ describe('model', () => {
 
     const newData = {
       name: faker.name.findName(),
-      newField: faker.lorem.text(),
-      _hidden: faker.lorem.text(),
+      newField: faker.lorem.sentence(),
+      _hidden: faker.lorem.sentence(),
     }
 
     const updated = await User.update({
@@ -325,8 +325,8 @@ describe('model', () => {
 
     const newData = {
       name: faker.name.findName(),
-      newField: faker.lorem.text(),
-      _hidden: faker.lorem.text(),
+      newField: faker.lorem.sentence(),
+      _hidden: faker.lorem.sentence(),
     }
 
     const updated = Mock.update({

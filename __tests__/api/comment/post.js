@@ -12,7 +12,7 @@ const userData = {
   password: faker.internet.password(),
 }
 const commentData = {
-  text: faker.lorem.text(),
+  text: faker.lorem.sentence(),
 }
 
 beforeAll(async () => {
@@ -60,6 +60,8 @@ describe('create comment', () => {
       commentData
     )
 
+    expect(parent.commentCount).toBe(0)
+
     const { res, comment } = await post(`${db.url}?secret=${secret}`, {
       parent: parent.id,
       ...commentData,
@@ -68,7 +70,8 @@ describe('create comment', () => {
     expect(res.status).toBe(201)
     expect(comment.text).toBe(commentData.text)
     expect(comment.name).toBe(commentData.name)
-    expect(comment.parent).toBe(parent.id)
+    expect(comment.parent.id).toBe(parent.id)
+    expect(comment.parent.commentCount).toBe(1)
 
     Comment.remove(parent)
     Comment.remove(comment)
