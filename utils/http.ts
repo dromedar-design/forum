@@ -1,9 +1,5 @@
 import fetch from 'isomorphic-unfetch'
 
-if (process.env.NODE_ENV === 'test') {
-  require('dotenv').config()
-}
-
 interface BaseUser {
   email: string
   name?: string

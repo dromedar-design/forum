@@ -1,10 +1,12 @@
+if ('on' === process.env.MOCK) {
+  jest.mock('@db/Model')
+}
+
 import { Comment, User } from '@db/Model'
 import handler from '@pages/api/comment/post'
 import { post } from '@utils/http'
 import { testServer } from '@utils/testing'
 import faker from 'faker'
-
-jest.mock('@db/Model')
 
 let db, u, secret
 const userData = {
@@ -15,10 +17,16 @@ const commentData = {
   text: faker.lorem.sentence(),
 }
 
+beforeEach(async () => await Comment.reset())
+
 beforeAll(async () => {
   db = await testServer(handler)
-  u = await User.create(userData)
-  secret = await User.login(userData)
+  try {
+    u = await User.create(userData)
+    secret = await User.login(userData)
+  } catch (e) {
+    console.log(e)
+  }
 })
 
 afterAll(async () => {
@@ -50,8 +58,6 @@ describe('create comment', () => {
     expect(res.status).toBe(201)
     expect(comment.text).toBe(commentData.text)
     expect(comment.name).toBe(commentData.name)
-
-    Comment.remove(comment)
   })
 
   test('creates comment with parent', async () => {
@@ -72,8 +78,5 @@ describe('create comment', () => {
     expect(comment.name).toBe(commentData.name)
     expect(comment.parent.id).toBe(parent.id)
     expect(comment.parent.commentCount).toBe(1)
-
-    Comment.remove(parent)
-    Comment.remove(comment)
   })
 })

@@ -1,12 +1,16 @@
+if ('on' === process.env.MOCK) {
+  jest.mock('@db/Model')
+}
+
 import { Comment } from '@db/Model'
 import handler from '@pages/api/comment/get/[id]'
 import { get } from '@utils/http'
 import { testServer } from '@utils/testing'
 import faker from 'faker'
 
-jest.mock('@db/Model')
-
 let db
+
+beforeEach(async () => await Comment.reset())
 
 beforeAll(async () => {
   db = await testServer(handler)
@@ -26,11 +30,11 @@ describe('get comment by id', () => {
 
   test('returns error when comment is not available', async () => {
     const { res, error } = await get(db.url, {
-      id: 'wrong_id',
+      id: 999999,
     })
 
-    expect(res.status).toBe(400)
-    expect(error).toBe('invalid argument')
+    expect(res.status).toBe(404)
+    expect(error).toBe('instance not found')
   })
 
   test('returns one comment with no children', async () => {
@@ -46,8 +50,6 @@ describe('get comment by id', () => {
     expect(current.text).toBe(comment.text)
     expect(current.text).toBe(data.text)
     expect(items.length).toBe(0)
-
-    Comment.remove(comment)
   })
 
   test('returns one comment with children', async () => {
@@ -71,8 +73,5 @@ describe('get comment by id', () => {
     expect(items[0].text).toBe(comment2.text)
     expect(items[0].text).toBe(data2.text)
     expect(items[0].parent.id).toBe(comment1.id)
-
-    Comment.remove(comment1)
-    Comment.remove(comment2)
   })
 })

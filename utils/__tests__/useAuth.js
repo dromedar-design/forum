@@ -1,3 +1,7 @@
+if ('on' === process.env.MOCK) {
+  jest.mock('@db/Model')
+}
+
 import { User } from '@db/Model'
 import { act, renderHook } from '@testing-library/react-hooks'
 import useAuth, { AuthProvider } from '@utils/useAuth'
@@ -5,11 +9,11 @@ import faker from 'faker'
 import fetch from 'jest-fetch-mock'
 import React from 'react'
 
-jest.mock('@db/Model')
-
 beforeAll(() => fetch.enableFetchMocks())
-
-beforeEach(() => fetch.resetMocks())
+beforeEach(async () => {
+  fetch.resetMocks()
+  await User.reset()
+})
 
 test('user is null by default', async () => {
   const wrapper = ({ children }) => (
@@ -38,8 +42,6 @@ test('returns correct user when it is available', async () => {
   const { result } = renderHook(() => useAuth(), { wrapper })
 
   expect(result.current.user).toStrictEqual(user)
-
-  User.remove(user)
 })
 
 test('returns the user only when he is logged in', async () => {
@@ -64,8 +66,6 @@ test('returns the user only when he is logged in', async () => {
 
   await waitForNextUpdate()
   expect(result.current.user).toStrictEqual(user)
-
-  User.remove(user)
 })
 
 test('creating a new user is available and able to log out', async () => {

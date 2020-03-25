@@ -1,3 +1,7 @@
+if ('on' === process.env.MOCK) {
+  jest.mock('@db/Model')
+}
+
 import { User } from '@db/Model'
 import { render } from '@testing-library/react'
 import { AuthProvider } from '@utils/useAuth'
@@ -6,10 +10,11 @@ import fetch from 'jest-fetch-mock'
 import React from 'react'
 import Header from '../Header'
 
-jest.mock('@db/Model')
-
 beforeAll(() => fetch.enableFetchMocks())
-beforeEach(() => fetch.resetMocks())
+beforeEach(async () => {
+  fetch.resetMocks()
+  await User.reset()
+})
 
 test('shows logged out state by default', async () => {
   fetch.mockResponse(JSON.stringify({}))
@@ -41,6 +46,4 @@ test('shows user info when logged in', async () => {
   expect(queryByText('Login')).toBeNull()
   expect(queryByText('Logout')).not.toBeNull()
   expect(queryByText(data.email)).not.toBeNull()
-
-  User.remove(user)
 })

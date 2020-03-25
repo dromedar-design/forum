@@ -15,7 +15,7 @@
     "prettier": "prettier --ignore-path .gitignore \"**/*.+(js|json|ts|tsx)\"",
     "start": "next start",
     "test": "jest --watch --runInBand --detectOpenHandles",
-    "test:cov": "jest --coverage --runInBand --detectOpenHandles",
+    "test:cov": "cross-env MOCK='off' jest --coverage --runInBand --detectOpenHandles",
     "validate": "npm run check-types && npm run check-format && npm run build"
   },
   "dependencies": {

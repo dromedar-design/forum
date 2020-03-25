@@ -1,9 +1,5 @@
 import { Client, query as q } from 'faunadb'
 
-if (process.env.NODE_ENV === 'test') {
-  require('dotenv').config()
-}
-
 const SERVER_SECRET =
   process.env.NODE_ENV === 'development'
     ? process.env.FAUNA_SERVER_KEY
@@ -30,7 +26,12 @@ class Model {
   async transformValue(prop) {
     if (typeof prop === 'object') {
       if (prop.hasOwnProperty('value')) {
-        return await this.find(prop.value.id, prop.value.collection.value.id)
+        try {
+          return await this.find(prop.value.id, prop.value.collection.value.id)
+        } catch (e) {
+          // if the model in the relationship was deleted
+          return null
+        }
       }
     }
 
@@ -93,8 +94,8 @@ class Model {
     return await this.index({ index: this.config.index })
   }
 
-  remove(data) {
-    this.client.query(q.Delete(this.ref(data)))
+  async remove(data) {
+    await this.client.query(q.Delete(this.ref(data)))
     return true
   }
 
@@ -143,6 +144,17 @@ class Model {
     }
 
     return await new Client({ secret }).query(q.Logout(false))
+  }
+
+  async reset() {
+    try {
+      const items = await this.all()
+      if (items.length) {
+        await Promise.all(items.map(i => this.remove(i)))
+      }
+    } catch (e) {
+      console.error('ERROR IN RESET', e.requestResult.requestRaw)
+    }
   }
 }
 

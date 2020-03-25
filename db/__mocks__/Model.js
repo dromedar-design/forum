@@ -50,7 +50,7 @@ const Model = {
 
     const item = cleanDB().find(item => item.id === id)
     if (undefined === item) {
-      throw new Error('invalid argument')
+      throw new Error('instance not found')
     }
 
     return item
@@ -114,7 +114,7 @@ const Model = {
 
     const item = DB.find(i => i.id === id)
     if (undefined === item) {
-      throw new Error('invalid argument')
+      throw new Error('instance not found')
     }
 
     DB = DB.map(i => {

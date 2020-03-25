@@ -1,11 +1,13 @@
+if ('on' === process.env.MOCK) {
+  jest.mock('@db/Model')
+}
+
 import faker from 'faker'
-import { User } from '../Model'
-import { User as Mock } from '../__mocks__/Model'
+import { Comment, User } from '../Model'
 
-let data,
-  current = null
-
-beforeEach(() => {
+let data
+beforeEach(async () => {
+  await User.reset()
   data = {
     email: faker.internet.email(),
     password: faker.internet.password(),
@@ -13,38 +15,23 @@ beforeEach(() => {
   }
 })
 
-afterEach(async () => {
-  if (current) {
-    User.remove(current)
-    current = null
-  }
-
-  Mock.reset()
-})
-
 describe('model', () => {
   test('models can be created', async () => {
-    expect.assertions(3)
-
-    current = await User.create(data)
+    const current = await User.create(data)
 
     expect(typeof current.id).toBe('string')
     expect(current.email).toBe(data.email)
     expect(current.name).toBe(data.name)
-  })
 
-  test('mocked models can be created', () => {
-    const mock = Mock.create(data)
-
-    expect(typeof mock.id).toBe('string')
-    expect(mock.email).toBe(data.email)
-    expect(mock.name).toBe(data.name)
+    try {
+      await Comment.find(current.id)
+    } catch (e) {
+      expect(e.message).toBe('instance not found')
+    }
   })
 
   test('models can be retrieved', async () => {
-    expect.assertions(4)
-
-    current = await User.create(data)
+    await User.create(data)
     const users = await User.all()
 
     expect(users.length).toBe(1)
@@ -53,107 +40,43 @@ describe('model', () => {
     expect(users[0].name).toBe(data.name)
   })
 
-  test('mocked models can be retrieved', () => {
-    Mock.create(data)
-    const mocks = Mock.all()
-
-    expect(mocks.length).toBe(1)
-    expect(typeof mocks[0].id).toBe('string')
-    expect(mocks[0].email).toBe(data.email)
-    expect(mocks[0].name).toBe(data.name)
-  })
-
   test('returns the model if one of the attribute is a ref', async () => {
-    expect.assertions(1)
-
     const parent = await User.create(data)
 
-    current = await User.create({
+    const current = await User.create({
       ...data,
       email: faker.internet.email(),
       parent: User.ref(parent),
     })
 
     expect(current.parent.id).toBe(parent.id)
-
-    User.remove(parent)
-  })
-
-  test('returns the mocked model if one of the attribute is a ref', () => {
-    const parent = Mock.create(data)
-
-    const mockData = {
-      ...data,
-      email: faker.internet.email(),
-      parent: Mock.ref(parent),
-    }
-    const mock = Mock.create(mockData)
-
-    expect(mock.parent.id).toBe(parent.id)
   })
 
   test('model can be removed', async () => {
-    expect.assertions(2)
-
-    current = await User.create(data)
+    const current = await User.create(data)
     expect(current.email).toBe(data.email)
 
     const response = await User.remove(current)
 
     expect(response).toBe(true)
-
-    //cleanup
-    current = null
-  })
-
-  test('mocked model can be removed', () => {
-    const mock = Mock.create(data)
-    expect(mock.email).toBe(data.email)
-
-    const response = Mock.remove(mock)
-
-    expect(response).toBe(true)
   })
 
   test('one model can be found', async () => {
-    expect.assertions(1)
-
-    current = await User.create(data)
-
+    const current = await User.create(data)
     const response = await User.find(current.id)
 
     expect(response).toStrictEqual(current)
   })
 
-  test('one mocked model can be found', () => {
-    const mock = Mock.create(data)
-
-    const response = Mock.find(mock.id)
-
-    expect(response).toStrictEqual(mock)
-  })
-
   test('one model can be found by any value', async () => {
-    expect.assertions(1)
-
-    current = await User.create(data)
+    const current = await User.create(data)
 
     const response = await User.where(['email', current.email])
 
     expect(response).toStrictEqual([current])
   })
 
-  test('one mocked model can be found by any value', () => {
-    const mock = Mock.create(data)
-
-    const response = Mock.where(['email', mock.email])
-
-    expect(response).toStrictEqual([mock])
-  })
-
   test('login is only possible for existing users', async () => {
-    expect.assertions(4)
-
     try {
       await User.login()
     } catch (e) {
@@ -168,7 +91,7 @@ describe('model', () => {
       expect(e.message).toBe('authentication failed')
     }
 
-    current = await User.create(data)
+    await User.create(data)
 
     try {
       await User.login({
@@ -185,33 +108,8 @@ describe('model', () => {
     expect(typeof secret).toBe('string')
   })
 
-  test('mock login is only possible for existing users', () => {
-    expect(() => {
-      Mock.login()
-    }).toThrowError('invalid login data')
-
-    expect(() => {
-      Mock.login(data)
-    }).toThrowError('authentication failed')
-
-    Mock.create(data)
-
-    expect(() => {
-      Mock.login({
-        ...data,
-        password: 'wrong_password',
-      })
-    }).toThrowError('authentication failed')
-
-    const secret = Mock.login(data)
-
-    expect(typeof secret).toBe('string')
-  })
-
   test('auth user can only be retrieved when logged in', async () => {
-    expect.assertions(3)
-
-    current = await User.create(data)
+    const current = await User.create(data)
 
     try {
       await User.bySecret()
@@ -233,27 +131,8 @@ describe('model', () => {
     expect(loggedIn).toStrictEqual(current)
   })
 
-  test('mocked auth user can only be retrieved when logged in', () => {
-    const mock = Mock.create(data)
-
-    expect(() => {
-      Mock.bySecret()
-    }).toThrowError('invalid auth token')
-
-    expect(() => {
-      Mock.bySecret('wrong_secret')
-    }).toThrowError('unauthorized')
-
-    const secret = Mock.login(data)
-    const loggedIn = Mock.bySecret(secret)
-
-    expect(loggedIn).toStrictEqual(mock)
-  })
-
   test('can only log out when logged in and the secret is correct', async () => {
-    expect.assertions(3)
-
-    current = await User.create(data)
+    await User.create(data)
 
     try {
       await User.logout()
@@ -275,33 +154,8 @@ describe('model', () => {
     expect(resp).toBe(true)
   })
 
-  test('mock can only log out when logged in and the secret is correct', () => {
-    Mock.create(data)
-
-    try {
-      Mock.logout()
-    } catch (e) {
-      // console.error(e)
-      expect(e.message).toBe('invalid auth token')
-    }
-
-    try {
-      Mock.logout('wrong_secret')
-    } catch (e) {
-      // console.error(e)
-      expect(e.message).toBe('unauthorized')
-    }
-
-    const secret = Mock.login(data)
-    const resp = Mock.logout(secret)
-
-    expect(resp).toBe(true)
-  })
-
   test('models can be updated', async () => {
-    expect.assertions(4)
-
-    current = await User.create(data)
+    const current = await User.create(data)
 
     const newData = {
       name: faker.name.findName(),
@@ -311,26 +165,6 @@ describe('model', () => {
 
     const updated = await User.update({
       ...current,
-      ...newData,
-    })
-
-    expect(updated.email).toBe(data.email)
-    expect(updated.name).toBe(newData.name)
-    expect(updated.newField).toBe(newData.newField)
-    expect(typeof updated._hidden).toBe('undefined')
-  })
-
-  test('mocked models can be updated', () => {
-    const mock = Mock.create(data)
-
-    const newData = {
-      name: faker.name.findName(),
-      newField: faker.lorem.sentence(),
-      _hidden: faker.lorem.sentence(),
-    }
-
-    const updated = Mock.update({
-      ...mock,
       ...newData,
     })
 

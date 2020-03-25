@@ -1,12 +1,16 @@
+if ('on' === process.env.MOCK) {
+  jest.mock('@db/Model')
+}
+
 import { Comment } from '@db/Model'
 import handler from '@pages/api/comment/delete'
 import { post } from '@utils/http'
 import { testServer } from '@utils/testing'
 import faker from 'faker'
 
-jest.mock('@db/Model')
-
 let db
+
+beforeEach(async () => await Comment.reset())
 
 beforeAll(async () => {
   db = await testServer(handler)
@@ -26,11 +30,11 @@ describe('delete comment', () => {
 
   test('shows error when comment is not available', async () => {
     const { res, error } = await post(db.url, {
-      id: 'wrong_id',
+      id: 999999,
     })
 
-    expect(res.status).toBe(400)
-    expect(error).toBe('invalid argument')
+    expect(res.status).toBe(404)
+    expect(error).toBe('instance not found')
   })
 
   test('succesfully removes comment', async () => {
@@ -46,7 +50,5 @@ describe('delete comment', () => {
     expect(current.deleted).toBe(true)
     expect(current.text).toBe('')
     expect(typeof current._text).toBe('undefined')
-
-    Comment.remove(comment)
   })
 })

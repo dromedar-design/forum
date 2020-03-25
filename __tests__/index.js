@@ -1,3 +1,7 @@
+if ('on' === process.env.MOCK) {
+  jest.mock('@db/Model')
+}
+
 import { Comment } from '@db/Model'
 import Page from '@pages/index'
 import { render } from '@testing-library/react'
@@ -5,8 +9,6 @@ import { DataProvider } from '@utils/useData'
 import faker from 'faker'
 import fetch from 'jest-fetch-mock'
 import React from 'react'
-
-jest.mock('@db/Model')
 
 beforeAll(() => {
   // Mock user call
@@ -59,10 +61,10 @@ test('renders the inital comments', async () => {
     expect(queryByText(comment.text)).not.toBeNull()
   })
 
-  const loading = await findAllByText('Loading ...')
-  expect(loading.length).toBe(1)
-
   comments.forEach(comment => {
     Comment.remove(comment)
   })
+
+  const loading = await findAllByText('Loading ...')
+  expect(loading.length).toBe(1)
 })

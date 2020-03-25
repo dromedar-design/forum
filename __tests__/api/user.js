@@ -1,10 +1,12 @@
+if ('on' === process.env.MOCK) {
+  jest.mock('@db/Model')
+}
+
 import { User } from '@db/Model'
 import handler from '@pages/api/user'
 import { get } from '@utils/http'
 import { testServer } from '@utils/testing'
 import faker from 'faker'
-
-jest.mock('@db/Model')
 
 let db, u
 const userData = {

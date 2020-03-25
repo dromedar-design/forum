@@ -1,16 +1,20 @@
+if ('on' === process.env.MOCK) {
+  jest.mock('@db/Model')
+}
+
 import { User } from '@db/Model'
 import handler from '@pages/api/login'
 import { post } from '@utils/http'
 import { testServer } from '@utils/testing'
 import faker from 'faker'
 
-jest.mock('@db/Model')
-
 let db
 const userData = {
   email: faker.internet.email(),
   password: faker.internet.password(),
 }
+
+beforeEach(async () => await User.reset())
 
 beforeAll(async () => {
   db = await testServer(handler)
@@ -42,7 +46,5 @@ describe('login user', () => {
 
     expect(res.status).toBe(200)
     expect(user.email).toBe(userData.email)
-
-    User.remove(user)
   })
 })
