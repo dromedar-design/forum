@@ -53,9 +53,7 @@ describe('get comment by id', () => {
   })
 
   test('returns one comment with children', async () => {
-    const data1 = {
-      text: faker.lorem.sentence(),
-    }
+    const data1 = { text: faker.lorem.sentence() }
     const data2 = { text: faker.lorem.sentence() }
 
     const comment1 = await Comment.create(data1)
