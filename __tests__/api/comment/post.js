@@ -21,12 +21,8 @@ beforeEach(async () => await Comment.reset())
 
 beforeAll(async () => {
   db = await testServer(handler)
-  try {
-    u = await User.create(userData)
-    secret = await User.login(userData)
-  } catch (e) {
-    console.log(e)
-  }
+  u = await User.create(userData)
+  secret = await User.login(userData)
 })
 
 afterAll(async () => {

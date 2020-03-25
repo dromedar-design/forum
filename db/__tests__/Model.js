@@ -17,6 +17,8 @@ beforeEach(async () => {
 
 describe('model', () => {
   test('models can be created', async () => {
+    expect.assertions(4)
+
     const current = await User.create(data)
 
     expect(typeof current.id).toBe('string')

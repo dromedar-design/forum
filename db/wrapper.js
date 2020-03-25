@@ -22,6 +22,10 @@ export default async (req, res, logic) => {
       status = 401
     }
 
+    if ('instance not found' === e.message) {
+      status = 404
+    }
+
     res.status(status).json({ error: e.message })
   }
 }
