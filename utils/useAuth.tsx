@@ -10,7 +10,7 @@ interface Action {
 interface State {
   user: User | null
   current: 'IN' | 'OUT' | 'LOADING'
-  error: string | null
+  error: string
 }
 
 const defaultState: State = {
