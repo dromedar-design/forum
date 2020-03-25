@@ -16,7 +16,7 @@
     "start": "next start",
     "test": "jest --watch --runInBand --detectOpenHandles",
     "test:cov": "cross-env MOCK='off' jest --coverage --runInBand --detectOpenHandles",
-    "validate": "npm run check-types && npm run check-format && npm run build"
+    "validate": "npm run check-types && npm run test:cov && npm run check-format && npm run build"
   },
   "dependencies": {
     "cookie": "^0.4.0",
